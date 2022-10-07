@@ -3,9 +3,6 @@ const path = require("path")
 
 global.app = express();
 const mongoose = require("mongoose")
-
-const {router_auth, isAuthenticated,} = require("./routes/autentificacion")
-
 const session = require('express-session');
 
 app.use(express.static(path.join(__dirname, 'public')))
@@ -22,11 +19,19 @@ app.use( session( {
 }));
 
 
+const {router_auth, isAuthenticated,} = require("./routes/autentificacion")
 app.use(router_auth)
 
-const mongo_uri = "mongodb://localhost:27017/framework-videojuego"
+const router_api = require("./routes/Api")
+app.use("/api", router_api)
 
-mongoose.connect(mongo_uri, function (err){
+
+//https://dev.to/emmysteven/solved-mongoose-unique-index-not-working-45d5
+const mongo_uri = "mongodb://localhost:27017/framework-videojuego"
+const options = {
+    autoIndex: true, //this is the code I added that solved it all
+}
+mongoose.connect(mongo_uri,options ,function (err){
     if(err){
         throw err;
     }else{
@@ -43,6 +48,9 @@ app.get("/home", isAuthenticated, (req, res)=>{
         ' <a href="/logout">Logout</a>')
     //return res.send("aver")
 })
+
+
+
 
 app.listen(3000, ()=>{
     console.log("servidor en linea...")
