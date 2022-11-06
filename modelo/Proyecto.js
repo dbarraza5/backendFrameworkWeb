@@ -8,7 +8,7 @@ const ProyectoSchema = new mongoose.Schema({
     fecha_creacion: {type: Date, default: Date.now},
     nombre_proyecto: {type: String, required: true},
     nombre_verificador :{type: String, unique: true},
-    usuario_id: {type: String,required: true},
+    usuario_id: {type: String,required: true, immutable: true},
 })
 
 ProyectoSchema.pre('save', function (next){
@@ -39,9 +39,32 @@ ProyectoSchema.pre('findOne', function (next){
     next();
 })
 
-ProyectoSchema.pre('findOneAndUpdate', function ( next){
-    console.log("fecha de acualizacion ahora 1")
-    this.set({ fecha_actualizacion: Date.now() });
+ProyectoSchema.pre('findOneAndUpdate', async function ( next){
+    console.log("fecha de acualizacion ahora 1");
+    console.log(this._update);
+    console.log(this.get("nombre_proyecto"))
+    console.log(this.get("usuario_id"))
+    console.log(this.usuario_id)
+
+    if("nombre_proyecto" in this._update){
+        const id_ =this._conditions._id;
+        const doc_act =  await proyecto_modelo.findOne({ '_id': id_ }).exec()
+
+        const verf =doc_act.usuario_id+"."+this._update.nombre_proyecto;
+        this.set({ nombre_verificador:  verf});
+        this.set({ fecha_actualizacion: Date.now() });
+        /*doc.save(error => {
+            if(error){
+                console.log("error actualizar el nombre de verificacion ", error.message)
+                //res.status(500).send({"error": error.message})
+                next(error)
+            }else{
+                next();
+            }
+        })*/
+    }
+
+    //this.set({ fecha_actualizacion: Date.now() });
     next();
 })
 
@@ -53,7 +76,7 @@ ProyectoSchema.pre('findOneAndUpdate', function ( next){
     next();
 })*/
 
-ProyectoSchema.post('findOneAndUpdate',  function(doc, next) {
+/*ProyectoSchema.post('findOneAndUpdate',  function(doc, next) {
     console.log("act gfghffghhfgfgh")
     console.log(this._update)
 
@@ -71,7 +94,7 @@ ProyectoSchema.post('findOneAndUpdate',  function(doc, next) {
         })
     }
     //next();
-});
+});*/
 
 const proyecto_modelo = mongoose.model('Proyecto', ProyectoSchema)
 proyecto_modelo.createIndexes()

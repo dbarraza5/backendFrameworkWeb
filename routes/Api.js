@@ -32,11 +32,12 @@ router_api.put("/proyecto/id/:id_proyecto", ((req, res)=>{
     const doc =  Proyecto.findOneAndUpdate(filter, update, function( error, result){
         if(error)
         {
-            res.status(500).send({"error": error.message})
+            return res.status(500).json({"error": error.message})
         }else{
-            res.send(result)
+            return res.json(result)
         }
     })
+    //return res.status(404 ).json({"error": "no se encontro registros"})
 }));
 
 
@@ -56,8 +57,11 @@ router_api.get("/animacion/id/:id_animacion", (req, res)=>{
     const id_animacion = req.params.id_animacion;
 
     Animacion.findOne({ '_id': id_animacion},function (err, pro) {
-        if (err){
+        if (err ){
             return res.status(500).send({"error": err.message})
+        }
+        if(pro==null){
+            return res.status(404).send({"error": "Animacion no encontrada"})
         }
         res.json(pro)
     });
@@ -68,7 +72,7 @@ router_api.put("/animacion/id/:id_animacion", ((req, res)=>{
     const id_animacion = req.params.id_animacion;
     const filter = { 'id_proyecto': id_proyecto };
     const update = {...req.body}
-    const doc =  Proyecto.findOneAndUpdate(filter, update, function( error, result){
+    const doc =  Animacion.findOneAndUpdate(filter, update, function( error, result){
         if(error)
         {
             res.status(500).send({"error": error.message})

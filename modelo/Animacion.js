@@ -102,7 +102,7 @@ const crear_animacion=(id_proyecto, nombre_animacion, raiz)=>{
 }
 
 const AnimacionSchema = new mongoose.Schema({
-    id_proyecto: {type: String, required: true},
+    id_proyecto: {type: String, required: true, immutable: true},
     nombre_animacion: {type: String, required: true},
     nombre_verificacion: {type: String, unique: true},
     raiz: {type: Boolean, required:true},
