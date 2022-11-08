@@ -45,14 +45,14 @@ ProyectoSchema.pre('findOneAndUpdate', async function ( next){
     console.log(this.get("nombre_proyecto"))
     console.log(this.get("usuario_id"))
     console.log(this.usuario_id)
-
+    this.set({ fecha_actualizacion: Date.now() });
     if("nombre_proyecto" in this._update){
         const id_ =this._conditions._id;
         const doc_act =  await proyecto_modelo.findOne({ '_id': id_ }).exec()
 
         const verf =doc_act.usuario_id+"."+this._update.nombre_proyecto;
         this.set({ nombre_verificador:  verf});
-        this.set({ fecha_actualizacion: Date.now() });
+
         /*doc.save(error => {
             if(error){
                 console.log("error actualizar el nombre de verificacion ", error.message)

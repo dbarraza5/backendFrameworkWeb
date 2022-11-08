@@ -70,7 +70,7 @@ router_api.get("/animacion/id/:id_animacion", (req, res)=>{
 
 router_api.put("/animacion/id/:id_animacion", ((req, res)=>{
     const id_animacion = req.params.id_animacion;
-    const filter = { 'id_proyecto': id_proyecto };
+    const filter = { '_id': id_animacion };
     const update = {...req.body}
     const doc =  Animacion.findOneAndUpdate(filter, update, function( error, result){
         if(error)

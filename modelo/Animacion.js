@@ -158,8 +158,17 @@ const AnimacionSchema = new mongoose.Schema({
 
 })
 
-AnimacionSchema.pre('findOneAndUpdate', function (next){
+AnimacionSchema.pre('findOneAndUpdate', async function (next){
     this.set({ fecha_actualizacion: Date.now() });
+
+    if("nombre_animacion" in this._update){
+        const id_ =this._conditions._id;
+        const doc_act =  await Animacion.findOne({ '_id': id_ }).exec()
+
+        const verf =doc_act.id_proyecto+"."+this._update.nombre_animacion;
+        this.set({ nombre_verificacion:  verf});
+    }
+
     next();
 })
 
