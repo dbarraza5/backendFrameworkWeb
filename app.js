@@ -9,6 +9,12 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // update to match the domain you will make the request from
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
 app.set('trust proxy', 1) // trust first proxy
 app.use( session( {
     name : 'app.sid',
@@ -20,7 +26,7 @@ app.use( session( {
 
 
 const {router_auth, isAuthenticated,} = require("./routes/autentificacion")
-app.use(router_auth)
+app.use("/user", router_auth)
 
 const router_api = require("./routes/Api")
 app.use("/api", router_api)
@@ -52,6 +58,6 @@ app.get("/home", isAuthenticated, (req, res)=>{
 
 
 
-app.listen(3000, ()=>{
+app.listen(5000, ()=>{
     console.log("servidor en linea...")
 })
