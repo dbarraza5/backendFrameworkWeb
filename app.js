@@ -1,16 +1,20 @@
+
+
 const express = require("express")
 const path = require("path")
 
 global.app = express();
 const mongoose = require("mongoose")
 const session = require('express-session');
+//import {config} from "./config";
+const config = require("./config");
 
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+//permitir peticiones de un servidor desde otro dominio
 app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // update to match the domain you will make the request from
+    res.header("Access-Control-Allow-Origin", config.SERVIDOR_CLIENTE); // update to match the domain you will make the request from
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });

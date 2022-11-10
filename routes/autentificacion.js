@@ -3,8 +3,7 @@ const express = require("express");
 const User = require("../modelo/user")
 
 const jwt = require("jsonwebtoken")
-
-const TOKEN_KEY = "YclxoVrkm21fQ20w92IKmaueerKR4l0h";
+const config = require("../config");
 
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -12,7 +11,7 @@ const verifyToken = (req, res, next) => {
     console.log(authHeader);
     if (token == null)
         return res.status(401).send("Token requerido");
-    jwt.verify(token, TOKEN_KEY, (err, user) => {
+    jwt.verify(token, config.TOKEN_KEY, (err, user) => {
         if (err) {
             return res.status(403).send("Token invalido");
         }
@@ -30,7 +29,6 @@ function isAuthenticated(req, res, next) {
         res.redirect("/")
         next('route')
     }
-
 }
 
 const router_auth = express.Router();
@@ -66,14 +64,22 @@ router_auth.post("/login", ((req, res, next) => {
                     return res.status(500).json({"error": "Error al autenticar." + err1})
                     //res.status(500).send("Error al autenticar."+err1)
                 } else if (result) {
-                    req.session.user = req.body
-                    req.session.authenticated = true;
                     const token = jwt.sign(
                         {userId: user._id, email: user.email},
-                        TOKEN_KEY,
+                        config.TOKEN_KEY,
                         {expiresIn: "2h"}
                     )
-                    const respuesta = {id: user._id, token: token}
+
+                    req.token = token;
+                    req.session.user = req.body
+                    req.session.authenticated = true;
+                    const respuesta = {
+                        id: user._id,
+                        name: user.name,
+                        surname: user.surname,
+                        email: user.email,
+                        token: token,
+                    }
 
                     res.send(respuesta)
                     //res.redirect("/home")
@@ -88,8 +94,9 @@ router_auth.post("/login", ((req, res, next) => {
 }))
 
 router_auth.get('/logout', function (req, res) {
+    jwt.destroy(req.token, config.TOKEN_KEY);
     req.session.destroy();
-    res.redirect("/")
+    //res.redirect("/")
 });
 
 module.exports = {router_auth, isAuthenticated}

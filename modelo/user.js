@@ -6,7 +6,9 @@ const saltRounds = 10;
 //https://ull-esit-pl-1617.github.io/estudiar-cookies-y-sessions-en-expressjs-victor-pamela-jesus/cookies/chapter6.html
 const UserSchema = new mongoose.Schema({
     email: {type: String, require: true, unique: true},
-    password: {type: String, require: true}
+    password: {type: String, require: true},
+    name: {type: String, require: true},
+    surname: {type: String, require: true},
 })
 
 

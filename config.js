@@ -1,6 +1,8 @@
 const config = {
-    SERVIDOR_CLIENTE: "http://127.0.0.1:3000"
+    SERVIDOR_CLIENTE: "http://localhost:3000",
+
+    //token jwt
+    TOKEN_KEY: "YclxoVrkm21fQ20w92IKmaueerKR4l0h"
 }
 
-
-export default config;
+module.exports =  config;
