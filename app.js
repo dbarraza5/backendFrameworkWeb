@@ -29,10 +29,11 @@ app.use( session( {
 }));
 
 
-const {router_auth, isAuthenticated,} = require("./routes/autentificacion")
+const {router_auth} = require("./routes/LoginRegistro")
 app.use("/user", router_auth)
 
 const router_api = require("./routes/Api")
+const {isAuthenticated} = require("./middleware/Autentificacion");
 app.use("/api", router_api)
 
 

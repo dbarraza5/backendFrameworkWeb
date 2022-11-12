@@ -4,37 +4,13 @@ const User = require("../modelo/user")
 
 const jwt = require("jsonwebtoken")
 const config = require("../config");
+const {verifyToken, isAuthenticated} = require("../middleware/Autentificacion");
 
-const verifyToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    console.log(authHeader);
-    if (token == null)
-        return res.status(401).send("Token requerido");
-    jwt.verify(token, config.TOKEN_KEY, (err, user) => {
-        if (err) {
-            return res.status(403).send("Token invalido");
-        }
-        console.log(user);
-        req.user = user;
-        next();
-    });
-}
-
-function isAuthenticated(req, res, next) {
-    if (req.session.user) {
-        next()
-    } else {
-        res.status(400)//.send({error: "usted no esta autenticado."});
-        res.redirect("/")
-        next('route')
-    }
-}
 
 const router_auth = express.Router();
 
 
-router_auth.get("/ventas", verifyToken, ((req, res) => {
+router_auth.get("/ventas", verifyToken, isAuthenticated, ((req, res) => {
     res.send("sdfdsfsdf")
 }))
 
@@ -69,7 +45,6 @@ router_auth.post("/login", ((req, res, next) => {
                         config.TOKEN_KEY,
                         {expiresIn: "2h"}
                     )
-
                     req.token = token;
                     req.session.user = req.body
                     req.session.authenticated = true;
@@ -80,7 +55,6 @@ router_auth.post("/login", ((req, res, next) => {
                         email: user.email,
                         token: token,
                     }
-
                     res.send(respuesta)
                     //res.redirect("/home")
                 } else {
@@ -94,9 +68,10 @@ router_auth.post("/login", ((req, res, next) => {
 }))
 
 router_auth.get('/logout', function (req, res) {
-    jwt.destroy(req.token, config.TOKEN_KEY);
+    //jwt.destroy(req.token, config.TOKEN_KEY);
     req.session.destroy();
+    res.send()
     //res.redirect("/")
 });
 
-module.exports = {router_auth, isAuthenticated}
+module.exports = {router_auth}
