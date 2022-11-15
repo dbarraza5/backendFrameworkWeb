@@ -83,10 +83,10 @@ router_api.put("/animacion/id/:id_animacion", ((req, res)=>{
 }));
 
 
-router_api.put("/proyecto/:id_usuario/:nombre_proyecto", ((req, res)=>{
+router_api.put("/proyecto/:id_usuario/:nombre", ((req, res)=>{
     const id_usuario = req.params.id_usuario;
-    const nombre_proyecto = req.params.nombre_proyecto;
-    const filter = { 'nombre_proyecto': nombre_proyecto, 'usuario_id':id_usuario };
+    const nombre = req.params.nombre;
+    const filter = { 'nombre': nombre, 'usuario_id':id_usuario };
     const update = {...req.body}
     const doc =  Proyecto.findOneAndUpdate(filter, update, function( error, result){
         if(error)

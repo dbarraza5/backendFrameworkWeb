@@ -20,9 +20,9 @@ router_auth.post("/register", ((req, res) => {
     const user = new User(req.body)
     user.save(error => {
         if (error) {
-            res.status(500).send("Error al registrar al usuario." + error)
+            res.status(500).send(error)//.json({error: error})
         } else {
-            res.send("Usuario registrado exitosamente.")
+            res.json({"msj": "Usuario registrado exitosamente."})
         }
     })
 }))
