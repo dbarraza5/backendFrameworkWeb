@@ -15,6 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 //permitir peticiones de un servidor desde otro dominio
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", config.SERVIDOR_CLIENTE); // update to match the domain you will make the request from
+    res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE"); // update to match the domain you will make the request from
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });

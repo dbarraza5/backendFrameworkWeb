@@ -25,19 +25,38 @@ router_api.get("/proyecto/id/:id_proyecto", (req, res)=>{
     });
 });
 
-router_api.put("/proyecto/id/:id_proyecto", ((req, res)=>{
-    const id_proyecto = req.params.id_proyecto;
-    const filter = { '_id': id_proyecto };
-    const update = {...req.body}
-    const doc =  Proyecto.findOneAndUpdate(filter, update, function( error, result){
-        if(error)
-        {
-            return res.status(500).json({"error": error.message})
-        }else{
-            return res.json(result)
-        }
-    })
-    //return res.status(404 ).json({"error": "no se encontro registros"})
+const { check, validationResult  } = require('express-validator')
+
+
+const reglas =[check("nombre")
+        .optional()
+        .isLength({ min: 3 , max:20})
+        .withMessage("the name must have minimum length of 3")
+        .trim(),]
+
+
+router_api.put("/proyecto/id/:id_proyecto",reglas, ((req, res)=>{
+
+    const error = validationResult(req).formatWith(({ msg }) => msg);
+
+    const hasError = !error.isEmpty();
+
+    if (hasError) {
+        res.status(422).json({ error: error.array() });
+    } else {
+        const id_proyecto = req.params.id_proyecto;
+        const filter = { '_id': id_proyecto };
+        const update = {...req.body}
+
+        const doc =  Proyecto.findOneAndUpdate(filter, update, { returnDocument:"after" },function( error, result){
+            if(error)
+            {
+                return res.status(500).json({"error": error.message})
+            }else{
+                return res.json(result)
+            }
+        })
+    }
 }));
 
 
