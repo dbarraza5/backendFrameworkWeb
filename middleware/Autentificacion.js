@@ -24,7 +24,7 @@ function isAuthenticated(req, res, next) {
     } else {
         res.status(401).send({error: "usted no esta autenticado."});
         //res.redirect("/")
-        next('route')
+        //next('route')
     }
 }
 

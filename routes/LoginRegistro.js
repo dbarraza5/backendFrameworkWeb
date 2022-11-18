@@ -46,8 +46,9 @@ router_auth.post("/login", ((req, res, next) => {
                         {expiresIn: "2h"}
                     )
                     req.token = token;
-                    req.session.user = req.body
+                    req.session.user = {email:req.body.email}
                     req.session.authenticated = true;
+                    //req.session.save()
                     const respuesta = {
                         id: user._id,
                         name: user.name,
@@ -55,7 +56,11 @@ router_auth.post("/login", ((req, res, next) => {
                         email: user.email,
                         token: token,
                     }
+
+                    console.log(req.session)
                     res.send(respuesta)
+
+
                     //res.redirect("/home")
                 } else {
                     return res.status(500).json({"error": "email y/o password incorrectos"})
@@ -70,7 +75,7 @@ router_auth.post("/login", ((req, res, next) => {
 router_auth.get('/logout', function (req, res) {
     //jwt.destroy(req.token, config.TOKEN_KEY);
     req.session.destroy();
-    res.send()
+    res.send("ok")
     //res.redirect("/")
 });
 

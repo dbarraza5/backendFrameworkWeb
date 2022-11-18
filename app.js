@@ -10,23 +10,45 @@ const session = require('express-session');
 const config = require("./config");
 
 app.use(express.static(path.join(__dirname, 'public')))
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+//app.use(express.json());
+//app.use(express.urlencoded({ extended: true }));
+
+const bodyParser = require("body-parser");
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+
+const cookieParser = require("cookie-parser");
+//app.use(cookieParser());
+
+var cors = require('cors')
+var corsOptions = {
+    credentials: false,
+    origin: "*",
+    methods: ["GET","HEAD","PUT","PATCH","POST","DELETE"],
+    //"preflightContinue": false,
+    //"optionsSuccessStatus": 204
+}
+
+app.use(cors(corsOptions))
+//app.options("*", cors());
 //permitir peticiones de un servidor desde otro dominio
-app.use(function(req, res, next) {
+/*app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", config.SERVIDOR_CLIENTE); // update to match the domain you will make the request from
+    res.header("Access-Control-Allow-Credentials", true);
     res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE"); // update to match the domain you will make the request from
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
-});
+});*/
 
+const oneDay = 1000 * 60 * 60 * 24;
 app.set('trust proxy', 1) // trust first proxy
 app.use( session( {
-    name : 'app.sid',
-    secret: "1234567890QWERTY",
-    resave: false,
-    saveUninitialized: true,
-    //cookie: { secure: true }
+    //name: 'app.sid',
+    secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
+    //saveUninitialized:true,
+    cookie: { maxAge: oneDay, secure: false },
+    //resave: false
 }));
 
 
@@ -34,8 +56,10 @@ const {router_auth} = require("./routes/LoginRegistro")
 app.use("/user", router_auth)
 
 const router_api = require("./routes/Api")
+
+const {verifyToken} = require("./middleware/Autentificacion");
 const {isAuthenticated} = require("./middleware/Autentificacion");
-app.use("/api", router_api)
+app.use("/api", isAuthenticated, router_api)
 
 
 //https://dev.to/emmysteven/solved-mongoose-unique-index-not-working-45d5
@@ -55,11 +79,11 @@ app.get("/", (req, res)=>{
 })
 
 
-app.get("/home", isAuthenticated, (req, res)=>{
+/*app.get("/home", isAuthenticated, (req, res)=>{
     res.send('hello, ' + req.session.user+ '!' +
         ' <a href="/logout">Logout</a>')
     //return res.send("aver")
-})
+})*/
 
 
 
