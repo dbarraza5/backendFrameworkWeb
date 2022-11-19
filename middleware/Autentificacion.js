@@ -19,6 +19,11 @@ function verifyToken(req, res, next) {
 }
 
 function isAuthenticated(req, res, next) {
+    console.log("[Cookie1]")
+    console.log( req.headers.cookie)
+
+    console.log("[session]")
+    console.log( req.session.user)
     if (req.session.user) {
         next()
     } else {

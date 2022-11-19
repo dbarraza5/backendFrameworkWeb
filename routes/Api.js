@@ -62,7 +62,8 @@ router_api.put("/proyecto/id/:id_proyecto",reglas, ((req, res)=>{
 
 router_api.get("/proyecto/user/:id_usuario", (req, res)=>{
     const id_usuario = req.params.id_usuario;
-
+    console.log("[Cookie]")
+    console.log(req.cookies)
     const lista = Proyecto.find({'usuario_id':id_usuario },function (err, pro) {
         if (err){
             return res.status(500).send({"error": err.message})

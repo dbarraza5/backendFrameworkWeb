@@ -74,7 +74,9 @@ router_auth.post("/login", ((req, res, next) => {
 
 router_auth.get('/logout', function (req, res) {
     //jwt.destroy(req.token, config.TOKEN_KEY);
+    console.log(req.session.user)
     req.session.destroy();
+    req.session = null;
     res.send("ok")
     //res.redirect("/")
 });

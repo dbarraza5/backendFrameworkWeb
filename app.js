@@ -23,9 +23,10 @@ const cookieParser = require("cookie-parser");
 
 var cors = require('cors')
 var corsOptions = {
-    credentials: false,
-    origin: "*",
+    credentials: true,
+    origin: [config.SERVIDOR_CLIENTE],
     methods: ["GET","HEAD","PUT","PATCH","POST","DELETE"],
+    optionSuccessStatus:200,
     //"preflightContinue": false,
     //"optionsSuccessStatus": 204
 }
@@ -40,15 +41,28 @@ app.use(cors(corsOptions))
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });*/
+const mongo_uri = "mongodb://localhost:27017/framework-videojuego"
+const MongoDBStore = require('connect-mongodb-session')(session);
+const store = new MongoDBStore({
+    uri: mongo_uri,
+    collection: 'sessions'
+});
 
 const oneDay = 1000 * 60 * 60 * 24;
 app.set('trust proxy', 1) // trust first proxy
 app.use( session( {
     //name: 'app.sid',
     secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
-    //saveUninitialized:true,
-    cookie: { maxAge: oneDay, secure: false },
-    //resave: false
+    saveUninitialized:true,
+    cookie: {
+        sameSite: true,
+        maxAge: oneDay,
+        secure: false,
+        //sameSite: 'none'
+    },
+    rolling: true,
+    resave: false,
+    store: store
 }));
 
 
@@ -63,7 +77,7 @@ app.use("/api", isAuthenticated, router_api)
 
 
 //https://dev.to/emmysteven/solved-mongoose-unique-index-not-working-45d5
-const mongo_uri = "mongodb://localhost:27017/framework-videojuego"
+
 const options = {
     autoIndex: true, //this is the code I added that solved it all
 }
