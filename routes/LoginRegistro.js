@@ -43,7 +43,7 @@ router_auth.post("/login", ((req, res, next) => {
                     const token = jwt.sign(
                         {userId: user._id, email: user.email},
                         config.TOKEN_KEY,
-                        {expiresIn: "2h"}
+                        {expiresIn: "1m"}
                     )
                     req.token = token;
                     req.session.user = {email:req.body.email}
@@ -60,8 +60,6 @@ router_auth.post("/login", ((req, res, next) => {
                     console.log(req.session)
                     res.send(respuesta)
 
-
-                    //res.redirect("/home")
                 } else {
                     return res.status(500).json({"error": "email y/o password incorrectos"})
                     //res.status(500)//.send("email y/o password incorrectos")
@@ -75,8 +73,10 @@ router_auth.post("/login", ((req, res, next) => {
 router_auth.get('/logout', function (req, res) {
     //jwt.destroy(req.token, config.TOKEN_KEY);
     console.log(req.session.user)
+    res.clearCookie("usuario")
     req.session.destroy();
     req.session = null;
+    
     res.send("ok")
     //res.redirect("/")
 });

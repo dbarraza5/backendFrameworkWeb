@@ -73,7 +73,7 @@ const router_api = require("./routes/Api")
 
 const {verifyToken} = require("./middleware/Autentificacion");
 const {isAuthenticated} = require("./middleware/Autentificacion");
-app.use("/api", isAuthenticated, router_api)
+app.use("/api", isAuthenticated,verifyToken, router_api)
 
 
 //https://dev.to/emmysteven/solved-mongoose-unique-index-not-working-45d5

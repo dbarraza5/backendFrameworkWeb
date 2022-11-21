@@ -11,7 +11,12 @@ function verifyToken(req, res, next) {
     jwt.verify(token, config.TOKEN_KEY, (err, user) => {
         console.log("USER="+user);
         if (err) {
-            return res.status(403).send({error: "Token invalido."});
+            if(err.name==="TokenExpiredError"){
+                req.session.destroy()
+                req.session = null
+                res.clearCookie("usuario")
+            }
+            return res.status(403).send({error: err});
         }
         req.user = user;
         next();
@@ -27,7 +32,7 @@ function isAuthenticated(req, res, next) {
     if (req.session.user) {
         next()
     } else {
-        res.status(401).send({error: "usted no esta autenticado."});
+        res.status(401).send({error: {name:"NoAutenticado",msj:"usted no esta autenticado."}});
         //res.redirect("/")
         //next('route')
     }
