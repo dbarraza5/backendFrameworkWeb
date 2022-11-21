@@ -4,16 +4,7 @@ const {Animacion} = require("../modelo/Animacion");
 
 const router_api = express.Router();
 
-router_api.post("/proyecto", ((req, res)=>{
-    const proyecto = new Proyecto(req.body)
-    proyecto.save((error, resultado) => {
-        if(error){
-            res.status(500).send({"error": error.message})
-        }else{
-            res.send(resultado)
-        }
-    })
-}));
+
 
 router_api.get("/proyecto/id/:id_proyecto", (req, res)=>{
     const id_proyecto = req.params.id_proyecto;
@@ -27,12 +18,34 @@ router_api.get("/proyecto/id/:id_proyecto", (req, res)=>{
 
 const { check, validationResult  } = require('express-validator')
 
-
 const reglas =[check("nombre")
         .optional()
         .isLength({ min: 3 , max:20})
         .withMessage("the name must have minimum length of 3")
         .trim(),]
+
+router_api.post("/proyecto",reglas, ((req, res)=>{
+    const error = validationResult(req).formatWith(({ msg }) => msg);
+    const hasError = !error.isEmpty();
+
+    if (hasError) {
+        res.status(422).json({ error: error.array() });
+    } else {
+        const usuario_id = req.session.user.id
+        const datos={
+            ...req.body,
+            usuario_id: usuario_id
+        }
+        const proyecto = new Proyecto(datos)
+        proyecto.save((error, resultado) => {
+            if(error){
+                res.status(500).send({"error": error.message})
+            }else{
+                res.send(resultado)
+            }
+        })
+    }
+}));
 
 
 router_api.put("/proyecto/id/:id_proyecto",reglas, ((req, res)=>{

@@ -43,10 +43,13 @@ router_auth.post("/login", ((req, res, next) => {
                     const token = jwt.sign(
                         {userId: user._id, email: user.email},
                         config.TOKEN_KEY,
-                        {expiresIn: "1m"}
+                        {expiresIn: "10m"}
                     )
                     req.token = token;
-                    req.session.user = {email:req.body.email}
+                    req.session.user = {
+                        id: user._id,
+                        email:req.body.email
+                    }
                     req.session.authenticated = true;
                     //req.session.save()
                     const respuesta = {
