@@ -16,7 +16,7 @@ router_auth.get("/ventas", verifyToken, isAuthenticated, ((req, res) => {
 
 router_auth.post("/register", ((req, res) => {
     const {email, pasword} = req.body;
-    console.log(req.body)
+    //console.log(req.body)
     const user = new User(req.body)
     user.save(error => {
         if (error) {
@@ -60,7 +60,7 @@ router_auth.post("/login", ((req, res, next) => {
                         token: token,
                     }
 
-                    console.log(req.session)
+                    //console.log(req.session)
                     res.send(respuesta)
 
                 } else {
@@ -75,7 +75,7 @@ router_auth.post("/login", ((req, res, next) => {
 
 router_auth.get('/logout', function (req, res) {
     //jwt.destroy(req.token, config.TOKEN_KEY);
-    console.log(req.session.user)
+    //console.log(req.session.user)
     res.clearCookie("usuario")
     req.session.destroy();
     req.session = null;

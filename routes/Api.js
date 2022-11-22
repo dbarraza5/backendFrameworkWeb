@@ -21,7 +21,7 @@ const { check, validationResult  } = require('express-validator')
 const reglas =[check("nombre")
         .optional()
         .isLength({ min: 3 , max:20})
-        .withMessage("the name must have minimum length of 3")
+        .withMessage("the name must have minimum length of 3 and max 20")
         .trim(),]
 
 router_api.post("/proyecto",reglas, ((req, res)=>{
@@ -91,8 +91,8 @@ router_api.delete("/proyecto/id/:id_proyecto", ((req, res)=>{
 
 router_api.get("/proyecto/user/:id_usuario", (req, res)=>{
     const id_usuario = req.params.id_usuario;
-    console.log("[Cookie]")
-    console.log(req.cookies)
+    //console.log("[Cookie]")
+    //console.log(req.cookies)
     const lista = Proyecto.find({'usuario_id':id_usuario },function (err, pro) {
         if (err){
             return res.status(500).send({"error": err.message})
