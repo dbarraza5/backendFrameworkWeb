@@ -72,6 +72,22 @@ router_api.put("/proyecto/id/:id_proyecto",reglas, ((req, res)=>{
     }
 }));
 
+router_api.delete("/proyecto/id/:id_proyecto", ((req, res)=>{
+
+        const id_proyecto = req.params.id_proyecto;
+        const filter = { '_id': id_proyecto };
+
+        const doc =  Proyecto.deleteOne(filter,function( error, result){
+            if(error)
+            {
+                return res.status(500).json({"error": error.message})
+            }else{
+                return res.json(result)
+            }
+        })
+
+}));
+
 
 router_api.get("/proyecto/user/:id_usuario", (req, res)=>{
     const id_usuario = req.params.id_usuario;

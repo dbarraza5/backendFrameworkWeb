@@ -69,6 +69,14 @@ ProyectoSchema.pre('findOneAndUpdate', async function ( next){
     next();
 })
 
+ProyectoSchema.pre('deleteOne', async function ( next){
+    console.log("borrando Animaciones")
+    const id_proyecto = this._conditions._id;
+    console.log(id_proyecto)
+    const doc_act =  await Animacion.deleteMany({ 'id_proyecto': id_proyecto }).exec()
+    next();
+})
+
 /*ProyectoSchema.post('update', function (document, next){
     console.log("post actualizacion _____________________")
     //console.log(document)
