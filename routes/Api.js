@@ -73,9 +73,9 @@ router_api.put("/proyecto/id/:id_proyecto",reglas, ((req, res)=>{
 }));
 
 router_api.delete("/proyecto/id/:id_proyecto", ((req, res)=>{
-
+        const usuario_id = req.session.user.id;
         const id_proyecto = req.params.id_proyecto;
-        const filter = { '_id': id_proyecto };
+        const filter = { '_id': id_proyecto, usuario_id:  usuario_id};
 
         const doc =  Proyecto.deleteOne(filter,function( error, result){
             if(error)
@@ -131,20 +131,26 @@ router_api.put("/animacion/id/:id_animacion", ((req, res)=>{
     })
 }));
 
-
-router_api.put("/proyecto/:id_usuario/:nombre", ((req, res)=>{
-    const id_usuario = req.params.id_usuario;
-    const nombre = req.params.nombre;
-    const filter = { 'nombre': nombre, 'usuario_id':id_usuario };
-    const update = {...req.body}
-    const doc =  Proyecto.findOneAndUpdate(filter, update, function( error, result){
-        if(error)
-        {
-            res.status(500).send({"error": error.message})
-        }else{
-            res.send("actualizado con exito.")
+router_api.get("/animacion/proyecto/:id_proyecto", (req, res)=>{
+    const id_proyecto = req.params.id_proyecto;
+    Animacion.find({ 'id_proyecto': id_proyecto},function (err, pro) {
+        if (err){
+            return res.status(500).send({"error": err.message})
         }
-    })
-}));
+        res.json(pro)
+    });
+});
+
+
+router_api.get("/animacion/proyecto-slim/:id_proyecto", (req, res)=>{
+    const id_proyecto = req.params.id_proyecto;
+    Animacion.find({ 'id_proyecto': id_proyecto},function (err, pro) {
+        if (err){
+            return res.status(500).send({"error": err.message})
+        }
+        res.json(pro)
+    }).select(["_id", "nombre_animacion", "raiz", "id_copia_consolidado", "consolidado", "fecha_actualizacion", "fecha_creacion"]);
+});
+
 
 module.exports = router_api

@@ -43,7 +43,7 @@ router_auth.post("/login", ((req, res, next) => {
                     const token = jwt.sign(
                         {userId: user._id, email: user.email},
                         config.TOKEN_KEY,
-                        {expiresIn: "10m"}
+                        {expiresIn: "60m"}
                     )
                     req.token = token;
                     req.session.user = {

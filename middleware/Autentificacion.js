@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 function verifyToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    console.log("AUTH = "+authHeader);
+    //console.log("AUTH = "+authHeader);
     if (token == null)
         return res.status(401).send("Token requerido");
     jwt.verify(token, config.TOKEN_KEY, (err, user) => {
@@ -24,11 +24,11 @@ function verifyToken(req, res, next) {
 }
 
 function isAuthenticated(req, res, next) {
-    console.log("[Cookie1]")
+    /*console.log("[Cookie1]")
     console.log( req.headers.cookie)
 
     console.log("[session]")
-    console.log( req.session.user)
+    console.log( req.session.user)*/
     if (req.session.user) {
         next()
     } else {
