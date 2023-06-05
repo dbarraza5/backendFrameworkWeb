@@ -87,7 +87,23 @@ const animacion_default = {
             ]
         }
     ],
-    "grupos_figuras": [],
+    "grupos_figuras": [
+        {
+            "nombre": "default",
+            "nodo_padre": "root",
+            "tiempo_inicial": 500,
+            "tiempo_final": 2000,
+            "ciclo": 1,
+            "color": "#000000",
+            "cx": 0,
+            "cy": 0,
+            "capa": 0,
+            "grupo_movimientos": [
+                "default"
+            ],
+            "lista_figuras": []
+        }
+    ],
     "grupo_movimientos": []
 }
 
@@ -129,7 +145,11 @@ const AnimacionSchema = new mongoose.Schema({
     }],
 
     grupos_figuras: [{
-        nombre: {type: String, required: true},
+        nombre: {
+            type: String,
+            required: true,
+            unique: true
+        },
         nodo_padre: {type: String, required: true},
         tiempo_inicial: {type: Number, required: true},
         tiempo_final: {type: Number, required: true},

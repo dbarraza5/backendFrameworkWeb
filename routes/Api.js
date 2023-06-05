@@ -88,7 +88,6 @@ router_api.delete("/proyecto/id/:id_proyecto", ((req, res)=>{
 
 }));
 
-
 router_api.get("/proyecto/user/:id_usuario", (req, res)=>{
     const id_usuario = req.params.id_usuario;
     //console.log("[Cookie]")
@@ -121,7 +120,11 @@ router_api.put("/animacion/id/:id_animacion", ((req, res)=>{
     const id_animacion = req.params.id_animacion;
     const filter = { '_id': id_animacion };
     const update = {...req.body}
-    const doc =  Animacion.findOneAndUpdate(filter, update, function( error, result){
+    const opciones = {
+        new: true, // Devuelve el documento actualizado
+        runValidators: true // Habilita la validación
+    };
+    const doc =  Animacion.findOneAndUpdate(filter, update, opciones, function( error, result){
         if(error)
         {
             res.status(500).send({"error": error.message})
