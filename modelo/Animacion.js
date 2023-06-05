@@ -91,20 +91,20 @@ const animacion_default = {
         {
             "nombre": "default",
             "nodo_padre": "root",
-            "tiempo_inicial": 500,
-            "tiempo_final": 2000,
-            "ciclo": 1,
+            //"tiempo_inicial": 500,
+            //"tiempo_final": 2000,
+            //"ciclo": 1,
             "color": "#000000",
             "cx": 0,
             "cy": 0,
             "capa": 0,
-            "grupo_movimientos": [
-                "default"
-            ],
+            //"grupo_movimientos": [
+            //    "default"
+            //],
             "lista_figuras": []
         }
     ],
-    "grupo_movimientos": []
+    //"grupo_movimientos": []
 }
 
 const crear_animacion=(id_proyecto, nombre_animacion, raiz)=>{
@@ -117,66 +117,172 @@ const crear_animacion=(id_proyecto, nombre_animacion, raiz)=>{
     }
 }
 
-const AnimacionSchema = new mongoose.Schema({
-    id_proyecto: {type: String, required: true, immutable: true},
-    nombre_animacion: {type: String, required: true},
-    nombre_verificacion: {type: String, unique: true},
-    raiz: {type: Boolean, required:true},
-    id_copia_consolidado: {type: String, default: null},
-    consolidado: {type: Boolean, default:false},
-    fecha_actualizacion: {type: Date, default: Date.now},
-    fecha_creacion: {type: Date, default: Date.now},
-    meta_figuras: [{
-        nombre: {type: String, required: true},
-        atributos: [{
-            nombre: {type: String, required: true},
-            tipo: {type: String, required: true},
-            valor_defecto: {type: Number}
-        }]
-    }],
-
-    meta_movimientos: [{
-        nombre: {type: String, required: true},
-        atributos: [{
-            nombre: {type: String, required: true},
-            tipo: {type: String, required: true},
-            valor_defecto: {type: Number}
-        }]
-    }],
-
-    grupos_figuras: [{
+// Define el esquema para los grupos de figuras
+const grupoFigurasSchema = new mongoose.Schema({
+    nombre: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    nodo_padre: {
+        type: String,
+        required: true
+    },
+    /*tiempo_inicial: {
+        type: Number,
+        required: true
+    },
+    tiempo_final: {
+        type: Number,
+        required: true
+    },
+    ciclo: {
+        type: Boolean,
+        required: true
+    },*/
+    color: {
+        type: String,
+        required: true
+    },
+    cx: {
+        type: Number,
+        required: true
+    },
+    cy: {
+        type: Number,
+        required: true
+    },
+    capa: {
+        type: Number,
+        required: true
+    },
+    //grupo_movimientos: [{
+    //    type: mongoose.Schema.Types.ObjectId,
+    //    ref: 'GrupoMovimientos'
+    //}],
+    lista_figuras: [{
         nombre: {
             type: String,
-            required: true,
-            unique: true
+            required: true
         },
-        nodo_padre: {type: String, required: true},
-        tiempo_inicial: {type: Number, required: true},
-        tiempo_final: {type: Number, required: true},
-        ciclo: {type: Boolean, required: true},
-        color: {type: String, required: true},
-        cx: {type: Number, required: true},
-        cy: {type: Number, required: true},
-        capa: {type: Number, required: true},
-        grupo_movimientos: [String],
+        tipo_figura: {
+            type: String,
+            required: true
+        },
+        atributos: Object
+    }]
+});
 
-        lista_figuras:[{
-            nombre: {type: String, required: true},
-            tipo_figura: {type: String, required: true},
-            atributos: Object
+// Define el esquema para los grupos de movimientos
+const grupoMovimientosSchema = new mongoose.Schema({
+    nombre: {
+        type: String,
+        required: true
+    },
+    lista_movimientos: [{
+        nombre: {
+            type: String,
+            required: true
+        },
+        tipo: {
+            type: String,
+            required: true
+        },
+        atributos: Object
+    }]
+});
+
+// Crea el modelo para los grupos de figuras utilizando el esquema definido
+const GrupoFiguras = mongoose.model('GrupoFiguras', grupoFigurasSchema);
+
+// Crea el modelo para los grupos de movimientos utilizando el esquema definido
+const GrupoMovimientos = mongoose.model('GrupoMovimientos', grupoMovimientosSchema);
+
+// Define el esquema para la animación
+const AnimacionSchema = new mongoose.Schema({
+    id_proyecto: {
+        type: String,
+        required: true,
+        immutable: true
+    },
+    nombre_animacion: {
+        type: String,
+        required: true
+    },
+    nombre_verificacion: {
+        type: String,
+        unique: true
+    },
+    raiz: {
+        type: Boolean,
+        required: true
+    },
+    id_copia_consolidado: {
+        type: String,
+        default: null
+    },
+    consolidado: {
+        type: Boolean,
+        default: false
+    },
+    fecha_actualizacion: {
+        type: Date,
+        default: Date.now
+    },
+    fecha_creacion: {
+        type: Date,
+        default: Date.now
+    },
+    meta_figuras: [{
+        nombre: {
+            type: String,
+            required: true
+        },
+        atributos: [{
+            nombre: {
+                type: String,
+                required: true
+            },
+            tipo: {
+                type: String,
+                required: true
+            },
+            valor_defecto: Number
         }]
     }],
-
-    grupo_movimientos: [{
-        nombre: {type: String, required: true},
-        lista_movimientos:[{
-            nombre: {type: String, required: true},
-            tipo: {type: String, required: true},
-            atributos: Object
+    meta_movimientos: [{
+        nombre: {
+            type: String,
+            required: true
+        },
+        atributos: [{
+            nombre: {
+                type: String,
+                required: true
+            },
+            tipo: {
+                type: String,
+                required: true
+            },
+            valor_defecto: Number
         }]
-    }]
+    }],
+    grupos_figuras: {
+        type: [grupoFigurasSchema],
+        validate: {
+            validator: function (value) {
+                const nombres = value.map((grupo) => grupo.nombre);
+                return new Set(nombres).size === nombres.length;
+            },
+            message: 'No se permiten objetos con el mismo valor en el atributo nombre'
+        }
+    },
+    /*grupo_movimientos: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'GrupoMovimientos'
+    }]*/
+});
 
-})
 
 AnimacionSchema.pre('findOneAndUpdate', async function (next){
     this.set({ fecha_actualizacion: Date.now() });

@@ -19,6 +19,7 @@ ProyectoSchema.pre('save', function (next){
         const id_ = this._id.toString()
         this.nombre_verificador = this.usuario_id+"."+this.nombre
         const data_animacion = crear_animacion(id_, "animacion-deafult", true)
+        console.log(data_animacion)
         const animacion = new Animacion(data_animacion)
         animacion.save(error => {
             if(error){
