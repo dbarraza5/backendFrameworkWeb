@@ -124,12 +124,18 @@ router_api.put("/animacion/id/:id_animacion", ((req, res)=>{
         new: true, // Devuelve el documento actualizado
         runValidators: true // Habilita la validación
     };
+    const nombres = update.grupos_figuras.map((grupo) => grupo.nombre);
+
+    if (new Set(nombres).size !== nombres.length) {
+        return res.status(500).send({"error": 'No se permiten objetos con el mismo valor en el atributo nombre'})
+    }
+
     const doc =  Animacion.findOneAndUpdate(filter, update, opciones, function( error, result){
         if(error)
         {
-            res.status(500).send({"error": error.message})
+            return res.status(500).send({"error": error.message})
         }else{
-            res.send(result)
+            return res.send(result)
         }
     })
 }));

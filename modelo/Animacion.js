@@ -122,7 +122,6 @@ const grupoFigurasSchema = new mongoose.Schema({
     nombre: {
         type: String,
         required: true,
-        unique: true
     },
     nodo_padre: {
         type: String,
@@ -269,18 +268,25 @@ const AnimacionSchema = new mongoose.Schema({
     }],
     grupos_figuras: {
         type: [grupoFigurasSchema],
-        validate: {
-            validator: function (value) {
-                const nombres = value.map((grupo) => grupo.nombre);
-                return new Set(nombres).size === nombres.length;
-            },
-            message: 'No se permiten objetos con el mismo valor en el atributo nombre'
-        }
     },
     /*grupo_movimientos: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'GrupoMovimientos'
     }]*/
+
+    /*
+    Estos atributos son un respaldo del trabajo de una animacion 
+    * */
+    version: {
+        type: String,
+    },
+    id_backup: {
+        type: String,
+        immutable: true
+    },
+    is_buckup: {
+        type: String,
+    },
 });
 
 
@@ -297,6 +303,40 @@ AnimacionSchema.pre('findOneAndUpdate', async function (next){
 
     next();
 })
+
+
+AnimacionSchema.pre('save', async function (next) {
+    const animacion = this;
+
+    // Obtener los nombres de los grupos_figuras asociados a la animación
+    const nombres = animacion.grupos_figuras.map((grupo) => grupo.nombre);
+    const g_ = animacion.grupos_figuras
+
+    // Validar que no haya nombres duplicados
+    if (new Set(nombres).size !== nombres.length) {
+        const err = new Error('No se permiten objetos con el mismo valor en el atributo nombre');
+        return next(err);
+    }
+
+    next();
+});
+
+
+/*AnimacionSchema.pre('findOneAndUpdate', async function (next) {
+    const animacion = this;
+
+    // Obtener los nombres de los grupos_figuras asociados a la animación
+    const nombres = animacion.grupos_figuras.map((grupo) => grupo.nombre);
+    const g_ = animacion.grupos_figuras
+
+    // Validar que no haya nombres duplicados
+    if (new Set(nombres).size !== nombres.length) {
+        const err = new Error('No se permiten objetos con el mismo valor en el atributo nombre');
+        return next(err);
+    }
+
+    next();
+});*/
 
 const Animacion = mongoose.model('Animacion', AnimacionSchema)
 
