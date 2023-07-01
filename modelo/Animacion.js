@@ -101,7 +101,15 @@ const animacion_default = {
             //"grupo_movimientos": [
             //    "default"
             //],
-            "lista_figuras": []
+            "lista_figuras": [],
+            "lista_pintado":[
+                {
+                    color: "#000000",
+                    visible: true,
+                    elementos: []
+                }
+            ]
+
         }
     ],
     //"grupo_movimientos": []
@@ -169,7 +177,21 @@ const grupoFigurasSchema = new mongoose.Schema({
             required: true
         },
         atributos: Object
-    }]
+    }],
+
+    lista_pintado:[
+        {
+            color: {
+                type: String,
+                required: true
+            },
+            visible: {
+                type: Boolean,
+                required: true
+            },
+            elementos: []
+        }
+    ]
 });
 
 // Define el esquema para los grupos de movimientos
