@@ -41,7 +41,7 @@ app.use(cors(corsOptions))
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });*/
-const mongo_uri = "mongodb://localhost:27017/framework-videojuego"
+const mongo_uri = "mongodb://daniel:12345@db_mongo_docker:27017/framework-videojuego?authSource=admin"
 const MongoDBStore = require('connect-mongodb-session')(session);
 const store = new MongoDBStore({
     uri: mongo_uri,
