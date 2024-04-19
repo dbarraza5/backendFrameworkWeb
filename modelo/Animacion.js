@@ -104,9 +104,17 @@ const animacion_default = {
             "lista_figuras": [],
             "lista_pintado":[
                 {
-                    color: "#000000",
+                    color: "#0d67c8",
                     visible: true,
                     elementos: []
+                    /*
+                    * [
+                    *   {
+                            "nombre": "frec0",
+                            "componente": "PUNTO2"
+                        }
+                    * ]
+                    * */
                 }
             ]
 
