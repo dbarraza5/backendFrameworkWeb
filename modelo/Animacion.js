@@ -106,15 +106,10 @@ const animacion_default = {
                 {
                     color: "#0d67c8",
                     visible: true,
-                    elementos: []
-                    /*
-                    * [
-                    *   {
-                            "nombre": "frec0",
-                            "componente": "PUNTO2"
-                        }
-                    * ]
-                    * */
+                    elementos: [
+                        []//al menos un grupo
+                    ]
+
                 }
             ]
 
