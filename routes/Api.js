@@ -140,6 +140,13 @@ router_api.put("/animacion/id/:id_animacion", ((req, res)=>{
     })
 }));
 
+router_api.put("/animacion1/agregar-imagen/:id_animacion", ((req, res)=>{
+    const id_animacion = req.params.id_animacion;
+    const filter = { '_id': id_animacion };
+    const update = {...req.body}
+    return update;
+}));
+
 router_api.get("/animacion/proyecto/:id_proyecto", (req, res)=>{
     const id_proyecto = req.params.id_proyecto;
     Animacion.find({ 'id_proyecto': id_proyecto},function (err, pro) {

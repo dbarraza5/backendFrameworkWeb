@@ -115,10 +115,11 @@ const animacion_default = {
 
         }
     ],
+    lista_imagenes:[]
     //"grupo_movimientos": []
 }
 
-const crear_animacion=(id_proyecto, nombre_animacion, raiz)=>{
+const crear_animacion=(id_proyecto, id_usuario, nombre_animacion, raiz)=>{
     return {
         ...animacion_default,
         id_proyecto: id_proyecto,
@@ -127,6 +128,43 @@ const crear_animacion=(id_proyecto, nombre_animacion, raiz)=>{
         raiz: raiz
     }
 }
+
+const imageneSchema = new mongoose.Schema({
+    id_proyecto: {
+        type: String,
+        required: true,
+        immutable: true
+    },
+    id_animacion: {
+        type: String,
+        required: true,
+        immutable: true
+    },
+    nombre: {
+        type: String,
+        required: true,
+    },
+    x: {
+        type: Number,
+        required: true,
+    },
+    y: {
+        type: Number,
+        required: true,
+    },
+    ancho: {
+        type: Number,
+        required: true,
+    },
+    alto: {
+        type: Number,
+        required: true,
+    },
+    visible: {
+        type: Boolean,
+        default: true
+    },
+});
 
 // Define el esquema para los grupos de figuras
 const grupoFigurasSchema = new mongoose.Schema({
@@ -293,6 +331,10 @@ const AnimacionSchema = new mongoose.Schema({
     }],
     grupos_figuras: {
         type: [grupoFigurasSchema],
+    },
+
+    lista_imagenes:{
+        type: [imageneSchema],
     },
     /*grupo_movimientos: [{
         type: mongoose.Schema.Types.ObjectId,
