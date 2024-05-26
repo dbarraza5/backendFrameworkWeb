@@ -105,8 +105,8 @@ router_api.get("/proyecto/user/:id_usuario", (req, res)=>{
 router_api.get("/animacion/id/:id_animacion", (req, res)=>{
 
     const id_animacion = req.params.id_animacion;
-    res.send(`ID2 de la animación: ${id_animacion}`);
-    /*Animacion.findOne({ '_id': id_animacion},function (err, pro) {
+
+    Animacion.findOne({ '_id': id_animacion},function (err, pro) {
         if (err ){
             return res.status(500).send({"error": err.message})
         }
@@ -114,7 +114,7 @@ router_api.get("/animacion/id/:id_animacion", (req, res)=>{
             return res.status(404).send({"error": "Animacion no encontrada"})
         }
         res.json(pro)
-    });*/
+    });
 
 });
 
@@ -144,7 +144,32 @@ router_api.put("/animacion/id/:id_animacion", ((req, res)=>{
 
 // Configuración de multer para guardar archivos en una carpeta específica
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
+    destination: async function (req, file, cb) {
+        const id_animacion = req.params.id_animacion;
+        const animacion_ = await Animacion.findOne({ '_id': id_animacion }).exec();
+        if (animacion_){
+            const proyecto_ = await Proyecto.findOne({ '_id': animacion_.id_proyecto }).exec();
+            const path_ = '/home/app/storage/usuarios/'+proyecto_.usuario_id
+                +'/proyectos/'+animacion_.id_proyecto+'/animaciones/'+animacion_._id;
+            crearCarpetas(path_);
+            const dimensions = sizeOf(req.file.path);
+            req.params.path_imagen = path_;
+
+            const nuevaImagen = {
+                path: path_,
+                nombre: file.originalname,
+                x: 0,
+                y: 0,
+                ancho: dimensions.width, // Ancho de la imagen en píxeles
+                alto: dimensions.height, // Alto de la imagen en píxeles
+                ancho_original: dimensions.width,
+                alto_original: dimensions.height,
+                visible: true
+            };
+            animacion_.lista_imagenes.push(nuevaImagen);
+            req.params.id_imagen = nuevaImagen._id;
+
+        }
         cb(null, '/home/app/storage/uploads/'); // Ruta donde se guardarán los archivos
     },
     filename: function (req, file, cb) {
@@ -164,27 +189,38 @@ if (!fs.existsSync('/home/app/storage/uploads')) {
 }*/
 
 const fs = require('node:fs');
+const sizeOf = require('image-size');
 
-const folderName = 'storage/uploads';
-
-try {
-    if (!fs.existsSync(folderName)) {
-        fs.mkdirSync(folderName, { recursive: true });
+function crearCarpetas(folderName){
+    //const folderName = 'storage/uploads';
+    try {
+        if (!fs.existsSync(folderName)) {
+            fs.mkdirSync(folderName, { recursive: true });
+        }
+    } catch (err) {
+        console.error(err);
     }
-} catch (err) {
-    console.error(err);
 }
 
-router_api.put("/animacion/agregar-imagen/:id_animacion", upload.single('image'), ((req, res)=>{
+
+
+router_api.put("/animacion/agregar-imagen/:id_animacion", upload.single('image'), (async (req, res)=>{
     const id_animacion = req.params.id_animacion;
     const filter = { '_id': id_animacion };
     const update = {...req.body}
     // Aquí puedes obtener los detalles de la imagen
+
+    const animacion_ = await Animacion.findOne({ '_id': id_animacion }).exec();
+    const dimensions = sizeOf(req.file.path);
     const imagen = {
         nombre: req.file.originalname,
         tamaño: req.file.size, // Tamaño en bytes
         tipo: req.file.mimetype, // Tipo MIME del archivo
-        ruta: req.file.path // Ruta donde se guarda el archivo
+        ruta: req.file.path, // Ruta donde se guarda el archivo
+        ancho: dimensions.width, // Ancho de la imagen en píxeles
+        alto: dimensions.height, // Alto de la imagen en píxeles
+        path: req.params.path_imagen,
+        animacion: animacion_
     };
 
     // Devolver los detalles de la imagen en la respuesta

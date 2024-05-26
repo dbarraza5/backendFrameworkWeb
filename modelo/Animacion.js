@@ -130,15 +130,9 @@ const crear_animacion=(id_proyecto, id_usuario, nombre_animacion, raiz)=>{
 }
 
 const imageneSchema = new mongoose.Schema({
-    id_proyecto: {
+    path: {
         type: String,
         required: true,
-        immutable: true
-    },
-    id_animacion: {
-        type: String,
-        required: true,
-        immutable: true
     },
     nombre: {
         type: String,
@@ -160,6 +154,18 @@ const imageneSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+
+    ancho_original: {
+        type: Number,
+        required: true,
+        immutable: true
+    },
+    alto_original: {
+        type: Number,
+        required: true,
+        immutable: true
+    },
+
     visible: {
         type: Boolean,
         default: true
