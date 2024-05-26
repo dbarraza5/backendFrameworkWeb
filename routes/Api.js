@@ -1,5 +1,6 @@
 const express = require("express");
 const Proyecto = require("../modelo/Proyecto")
+const multer = require("multer");
 const {Animacion} = require("../modelo/Animacion");
 
 const router_api = express.Router();
@@ -102,9 +103,10 @@ router_api.get("/proyecto/user/:id_usuario", (req, res)=>{
 });
 
 router_api.get("/animacion/id/:id_animacion", (req, res)=>{
-    const id_animacion = req.params.id_animacion;
 
-    Animacion.findOne({ '_id': id_animacion},function (err, pro) {
+    const id_animacion = req.params.id_animacion;
+    res.send(`ID2 de la animación: ${id_animacion}`);
+    /*Animacion.findOne({ '_id': id_animacion},function (err, pro) {
         if (err ){
             return res.status(500).send({"error": err.message})
         }
@@ -112,7 +114,7 @@ router_api.get("/animacion/id/:id_animacion", (req, res)=>{
             return res.status(404).send({"error": "Animacion no encontrada"})
         }
         res.json(pro)
-    });
+    });*/
 
 });
 
@@ -140,11 +142,53 @@ router_api.put("/animacion/id/:id_animacion", ((req, res)=>{
     })
 }));
 
-router_api.put("/animacion1/agregar-imagen/:id_animacion", ((req, res)=>{
+// Configuración de multer para guardar archivos en una carpeta específica
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, '/home/app/storage/uploads/'); // Ruta donde se guardarán los archivos
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname); // Nombre del archivo original
+    }
+});
+
+const upload = multer({ storage: storage });
+
+/*const fs = require('fs');
+const path = require('path');
+const uploadDir = path.join(__dirname, 'uploads');
+console.log(__dirname);
+// Verificar si la carpeta uploads existe, si no, crearla
+if (!fs.existsSync('/home/app/storage/uploads')) {
+    fs.mkdirSync('/home/app/storage/uploads');
+}*/
+
+const fs = require('node:fs');
+
+const folderName = 'storage/uploads';
+
+try {
+    if (!fs.existsSync(folderName)) {
+        fs.mkdirSync(folderName, { recursive: true });
+    }
+} catch (err) {
+    console.error(err);
+}
+
+router_api.put("/animacion/agregar-imagen/:id_animacion", upload.single('image'), ((req, res)=>{
     const id_animacion = req.params.id_animacion;
     const filter = { '_id': id_animacion };
     const update = {...req.body}
-    return update;
+    // Aquí puedes obtener los detalles de la imagen
+    const imagen = {
+        nombre: req.file.originalname,
+        tamaño: req.file.size, // Tamaño en bytes
+        tipo: req.file.mimetype, // Tipo MIME del archivo
+        ruta: req.file.path // Ruta donde se guarda el archivo
+    };
+
+    // Devolver los detalles de la imagen en la respuesta
+    res.json(imagen);
 }));
 
 router_api.get("/animacion/proyecto/:id_proyecto", (req, res)=>{
