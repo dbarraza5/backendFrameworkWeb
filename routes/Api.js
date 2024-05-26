@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+
 const express = require("express");
 const Proyecto = require("../modelo/Proyecto")
 const multer = require("multer");
@@ -152,41 +154,47 @@ const storage = multer.diskStorage({
             const path_ = '/home/app/storage/usuarios/'+proyecto_.usuario_id
                 +'/proyectos/'+animacion_.id_proyecto+'/animaciones/'+animacion_._id;
             crearCarpetas(path_);
-            const dimensions = sizeOf(req.file.path);
-            req.params.path_imagen = path_;
-
+            // Generar manualmente el _id
+            const nuevoIdImagen = mongoose.Types.ObjectId();
             const nuevaImagen = {
+                _id: nuevoIdImagen,
                 path: path_,
                 nombre: file.originalname,
                 x: 0,
                 y: 0,
-                ancho: dimensions.width, // Ancho de la imagen en píxeles
-                alto: dimensions.height, // Alto de la imagen en píxeles
-                ancho_original: dimensions.width,
-                alto_original: dimensions.height,
+                ancho: 243,
+                alto: 324,
+                ancho_original: 122,//dimensions.width,
+                alto_original: 123,//dimensions.height,
                 visible: true
             };
             animacion_.lista_imagenes.push(nuevaImagen);
-            req.params.id_imagen = nuevaImagen._id;
-
+            await animacion_.save();
+            console.log("id imagen: "+nuevoIdImagen);
+            req.params.id_imagen = nuevoIdImagen;
+            req.params.path_imagen = path_;
+            cb(null, path_);
         }
-        cb(null, '/home/app/storage/uploads/'); // Ruta donde se guardarán los archivos
+        //cb(null, '/home/app/storage/uploads/'); // Ruta donde se guardarán los archivostyr
     },
     filename: function (req, file, cb) {
-        cb(null, file.originalname); // Nombre del archivo original
+        if(req.params.id_imagen){
+            const ext_ = obtenerExtension(file.originalname);
+            cb(null, req.params.id_imagen.toString()+"."+ext_); // Nombre del archivo original
+        }
+
     }
 });
 
-const upload = multer({ storage: storage });
+function obtenerExtension(nombreArchivo) {
+    const partes = nombreArchivo.split('.');
+    if (partes.length === 1 || (partes[0] === '' && partes.length === 2)) {
+        return '';
+    }
+    return partes.pop().toLowerCase();
+}
 
-/*const fs = require('fs');
-const path = require('path');
-const uploadDir = path.join(__dirname, 'uploads');
-console.log(__dirname);
-// Verificar si la carpeta uploads existe, si no, crearla
-if (!fs.existsSync('/home/app/storage/uploads')) {
-    fs.mkdirSync('/home/app/storage/uploads');
-}*/
+const upload = multer({ storage: storage });
 
 const fs = require('node:fs');
 const sizeOf = require('image-size');
@@ -212,19 +220,20 @@ router_api.put("/animacion/agregar-imagen/:id_animacion", upload.single('image')
 
     const animacion_ = await Animacion.findOne({ '_id': id_animacion }).exec();
     const dimensions = sizeOf(req.file.path);
-    const imagen = {
+    const imagen_ = {
         nombre: req.file.originalname,
         tamaño: req.file.size, // Tamaño en bytes
         tipo: req.file.mimetype, // Tipo MIME del archivo
         ruta: req.file.path, // Ruta donde se guarda el archivo
-        ancho: dimensions.width, // Ancho de la imagen en píxeles
+        ancho: dimensions.width, // Ancho de la imagen en píxelesewr
         alto: dimensions.height, // Alto de la imagen en píxeles
         path: req.params.path_imagen,
-        animacion: animacion_
+        id_imagen: req.params.id_imagen,
+        animacion: animacion_,
     };
 
     // Devolver los detalles de la imagen en la respuesta
-    res.json(imagen);
+    res.json(imagen_);
 }));
 
 router_api.get("/animacion/proyecto/:id_proyecto", (req, res)=>{
