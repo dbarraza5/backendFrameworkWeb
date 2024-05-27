@@ -1,10 +1,14 @@
+const mongoose = require("mongoose");
+
 const multer = require("multer");
 
-const upload = multer({ storage: storage });
+
 
 
 const fs = require('node:fs');
 const sizeOf = require('image-size');
+const {Animacion} = require("../modelo/Animacion");
+const Proyecto = require("../modelo/Proyecto")
 
 function crearCarpetas(folderName){
     //const folderName = 'storage/uploads';
@@ -15,6 +19,14 @@ function crearCarpetas(folderName){
     } catch (err) {
         console.error(err);
     }
+}
+
+function obtenerExtension(nombreArchivo) {
+    const partes = nombreArchivo.split('.');
+    if (partes.length === 1 || (partes[0] === '' && partes.length === 2)) {
+        return '';
+    }
+    return partes.pop().toLowerCase();
 }
 
 const storage = multer.diskStorage({
@@ -58,6 +70,9 @@ const storage = multer.diskStorage({
     }
 });
 
-const subirImagen = upload.single;
+const upload = multer({ storage: storage });
 
-export default subirImagen;
+const subirImagen = upload;
+
+module.exports = {subirImagen}
+//export default subirImagen;

@@ -1,3 +1,5 @@
+
+
 const mongoose = require("mongoose");
 
 const express = require("express");
@@ -144,75 +146,24 @@ router_api.put("/animacion/id/:id_animacion", ((req, res)=>{
     })
 }));
 
-// Configuración de multer para guardar archivos en una carpeta específica
-const storage = multer.diskStorage({
-    destination: async function (req, file, cb) {
-        const id_animacion = req.params.id_animacion;
-        const animacion_ = await Animacion.findOne({ '_id': id_animacion }).exec();
-        if (animacion_){
-            const proyecto_ = await Proyecto.findOne({ '_id': animacion_.id_proyecto }).exec();
-            const path_ = '/home/app/storage/usuarios/'+proyecto_.usuario_id
-                +'/proyectos/'+animacion_.id_proyecto+'/animaciones/'+animacion_._id;
-            crearCarpetas(path_);
-            // Generar manualmente el _id
-            const nuevoIdImagen = mongoose.Types.ObjectId();
-            const nuevaImagen = {
-                _id: nuevoIdImagen,
-                path: path_,
-                nombre: file.originalname,
-                x: 0,
-                y: 0,
-                ancho: 243,
-                alto: 324,
-                ancho_original: 122,//dimensions.width,
-                alto_original: 123,//dimensions.height,
-                visible: true
-            };
-            animacion_.lista_imagenes.push(nuevaImagen);
-            await animacion_.save();
-            console.log("id imagen: "+nuevoIdImagen);
-            req.params.id_imagen = nuevoIdImagen;
-            req.params.path_imagen = path_;
-            cb(null, path_);
-        }
-        //cb(null, '/home/app/storage/uploads/'); // Ruta donde se guardarán los archivostyr
-    },
-    filename: function (req, file, cb) {
-        if(req.params.id_imagen){
-            const ext_ = obtenerExtension(file.originalname);
-            cb(null, req.params.id_imagen.toString()+"."+ext_); // Nombre del archivo original
-        }
-
-    }
+router_api.get('/imagen/:nombreImagen', (req, res) => {
+    const nombreImagen = req.params.nombreImagen;
+    const arreglo = nombreImagen.split("_");
+    const id_usuario=arreglo[0];
+    const id_proyecto=arreglo[1];
+    const id_animacion=arreglo[2];
+    const nombre_archivo = arreglo[3];
+    const path_ = '/home/app/storage/usuarios/'+id_usuario
+    +'/proyectos/'+id_proyecto+'/animaciones/'+id_animacion+'/'+nombre_archivo;
+    //res.json({path: path_})
+    res.sendFile(path_);
+    //res.sendFile(`${__dirname}/public/${nombreImagen}`);
 });
 
-function obtenerExtension(nombreArchivo) {
-    const partes = nombreArchivo.split('.');
-    if (partes.length === 1 || (partes[0] === '' && partes.length === 2)) {
-        return '';
-    }
-    return partes.pop().toLowerCase();
-}
-
-const upload = multer({ storage: storage });
-
-const fs = require('node:fs');
 const sizeOf = require('image-size');
+const {subirImagen} = require("../controller/ImagenAnimacion");
 
-function crearCarpetas(folderName){
-    //const folderName = 'storage/uploads';
-    try {
-        if (!fs.existsSync(folderName)) {
-            fs.mkdirSync(folderName, { recursive: true });
-        }
-    } catch (err) {
-        console.error(err);
-    }
-}
-
-
-
-router_api.put("/animacion/agregar-imagen/:id_animacion", upload.single('image'), (async (req, res)=>{
+router_api.put("/animacion/agregar-imagen/:id_animacion", subirImagen.single('image'), (async (req, res)=>{
     const id_animacion = req.params.id_animacion;
     const filter = { '_id': id_animacion };
     const update = {...req.body}
@@ -231,6 +182,22 @@ router_api.put("/animacion/agregar-imagen/:id_animacion", upload.single('image')
         id_imagen: req.params.id_imagen,
         animacion: animacion_,
     };
+
+    console.log("numero de imagenes: "+animacion_.lista_imagenes.length)
+    const idImagenObjId = mongoose.Types.ObjectId(req.params.id_imagen);
+    animacion_.lista_imagenes = animacion_.lista_imagenes.map((img)=>{
+        if(idImagenObjId.equals(img._id)){
+            console.log("actualiza la imagen");
+            img.ancho = dimensions.width;
+            img.alto = dimensions.height;
+            img.ancho_original = dimensions.width;
+            img.alto_original = dimensions.height;
+        }
+        return img;
+    });
+
+    //animacion_.lista_imagenes = [];
+    await animacion_.save();
 
     // Devolver los detalles de la imagen en la respuesta
     res.json(imagen_);
