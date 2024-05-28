@@ -39,10 +39,13 @@ const storage = multer.diskStorage({
                 +'/proyectos/'+animacion_.id_proyecto+'/animaciones/'+animacion_._id;
             crearCarpetas(path_);
             // Generar manualmente el _id
+            const ext_ = obtenerExtension(file.originalname);
             const nuevoIdImagen = mongoose.Types.ObjectId();
+            const url_ = `${proyecto_.usuario_id}_${animacion_.id_proyecto}_${animacion_._id}_${nuevoIdImagen}.${ext_}`;
             const nuevaImagen = {
                 _id: nuevoIdImagen,
-                path: path_,
+                path: path_+'/'+nuevoIdImagen.toString()+'.'+ext_,
+                //url: url_,
                 nombre: file.originalname,
                 x: 0,
                 y: 0,

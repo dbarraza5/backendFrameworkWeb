@@ -134,6 +134,11 @@ const imageneSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+
+    url: {
+        type: String,
+        required: true,
+    },
     nombre: {
         type: String,
         required: true,

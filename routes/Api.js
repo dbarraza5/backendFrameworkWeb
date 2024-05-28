@@ -165,33 +165,33 @@ const {subirImagen} = require("../controller/ImagenAnimacion");
 
 router_api.put("/animacion/agregar-imagen/:id_animacion", subirImagen.single('image'), (async (req, res)=>{
     const id_animacion = req.params.id_animacion;
-    const filter = { '_id': id_animacion };
-    const update = {...req.body}
     // Aquí puedes obtener los detalles de la imagen
 
     const animacion_ = await Animacion.findOne({ '_id': id_animacion }).exec();
     const dimensions = sizeOf(req.file.path);
-    const imagen_ = {
+    /*const imagen_ = {
         nombre: req.file.originalname,
         tamaño: req.file.size, // Tamaño en bytes
         tipo: req.file.mimetype, // Tipo MIME del archivo
-        ruta: req.file.path, // Ruta donde se guarda el archivo
+        ruta: req.file.path, // Ruta donde se guarda el archivodf
         ancho: dimensions.width, // Ancho de la imagen en píxelesewr
         alto: dimensions.height, // Alto de la imagen en píxeles
         path: req.params.path_imagen,
         id_imagen: req.params.id_imagen,
         animacion: animacion_,
-    };
+    };*/
 
-    console.log("numero de imagenes: "+animacion_.lista_imagenes.length)
     const idImagenObjId = mongoose.Types.ObjectId(req.params.id_imagen);
+    let imagen_subida = null;
     animacion_.lista_imagenes = animacion_.lista_imagenes.map((img)=>{
         if(idImagenObjId.equals(img._id)){
             console.log("actualiza la imagen");
+            //img.path =
             img.ancho = dimensions.width;
             img.alto = dimensions.height;
             img.ancho_original = dimensions.width;
             img.alto_original = dimensions.height;
+            imagen_subida = img;
         }
         return img;
     });
@@ -200,7 +200,7 @@ router_api.put("/animacion/agregar-imagen/:id_animacion", subirImagen.single('im
     await animacion_.save();
 
     // Devolver los detalles de la imagen en la respuesta
-    res.json(imagen_);
+    res.json({hk:75});
 }));
 
 router_api.get("/animacion/proyecto/:id_proyecto", (req, res)=>{
