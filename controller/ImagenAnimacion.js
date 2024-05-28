@@ -33,19 +33,23 @@ const storage = multer.diskStorage({
     destination: async function (req, file, cb) {
         const id_animacion = req.params.id_animacion;
         const animacion_ = await Animacion.findOne({ '_id': id_animacion }).exec();
+        if (!animacion_) {
+            return cb(new Error('No se encontró la animación'), '/home/app/storage/uploads/');
+        }
+        console.log(animacion_);
         if (animacion_){
             const proyecto_ = await Proyecto.findOne({ '_id': animacion_.id_proyecto }).exec();
             const path_ = '/home/app/storage/usuarios/'+proyecto_.usuario_id
                 +'/proyectos/'+animacion_.id_proyecto+'/animaciones/'+animacion_._id;
             crearCarpetas(path_);
-            // Generar manualmente el _id
+            // Generar manualmente el _idsa
             const ext_ = obtenerExtension(file.originalname);
             const nuevoIdImagen = mongoose.Types.ObjectId();
             const url_ = `${proyecto_.usuario_id}_${animacion_.id_proyecto}_${animacion_._id}_${nuevoIdImagen}.${ext_}`;
             const nuevaImagen = {
                 _id: nuevoIdImagen,
                 path: path_+'/'+nuevoIdImagen.toString()+'.'+ext_,
-                //url: url_,
+                url: url_,
                 nombre: file.originalname,
                 x: 0,
                 y: 0,
@@ -61,6 +65,8 @@ const storage = multer.diskStorage({
             req.params.id_imagen = nuevoIdImagen;
             req.params.path_imagen = path_;
             cb(null, path_);
+        }else{
+            cb(new Error('No se encontró la animación'), '/home/app/storage/uploads/'); // Devolver error y ruta de destino
         }
         //cb(null, '/home/app/storage/uploads/'); // Ruta donde se guardarán los archivostyr
     },
