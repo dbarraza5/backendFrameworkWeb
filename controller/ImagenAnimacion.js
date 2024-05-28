@@ -34,7 +34,7 @@ const storage = multer.diskStorage({
         const id_animacion = req.params.id_animacion;
         const animacion_ = await Animacion.findOne({ '_id': id_animacion }).exec();
         if (!animacion_) {
-            return cb(new Error('No se encontró la animación'), '/home/app/storage/uploads/');
+            return cb(new Error('No se encontró la animación'));
         }
         console.log(animacion_);
         if (animacion_){

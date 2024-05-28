@@ -175,38 +175,53 @@ const {subirImagen} = require("../controller/ImagenAnimacion");
         animacion: animacion_,
     };*/
 
-router_api.put("/animacion/agregar-imagen/:id_animacion", subirImagen.single('image'), (async (req, res)=>{
-    try{
-        const id_animacion = req.params.id_animacion;
-        // Aquí puedes obtener los detalles de la imagen
+const uploadSingleImage = subirImagen.single('image');
 
-        const animacion_ = await Animacion.findOne({ '_id': id_animacion }).exec();
-        const dimensions = sizeOf(req.file.path);
 
-        const idImagenObjId = mongoose.Types.ObjectId(req.params.id_imagen);
-        let imagen_subida = null;
-        animacion_.lista_imagenes = animacion_.lista_imagenes.map((img)=>{
-            if(idImagenObjId.equals(img._id)){
-                console.log("actualiza la imagen");
-                //img.path =
-                img.ancho = dimensions.width;
-                img.alto = dimensions.height;
-                img.ancho_original = dimensions.width;
-                img.alto_original = dimensions.height;
-                imagen_subida = img;
+router_api.put("/animacion/agregar-imagen/:id_animacion", (req, res) => {
+    uploadSingleImage(req, res, async function (err) {
+        try {
+            if (err) {
+                return res.status(400).send({ message: err.message});
             }
-            return img;
-        });
-        //animacion_.lista_imagenes = [];
-        await animacion_.save();
 
-        // Devolver los detalles de la imagen en la respuesta
-        res.json(imagen_subida);
-    } catch (error) {
-        console.error('Error en la carga de imagen o en la actualización:', error);
-        res.status(500).json({ message: 'Error en el servidor al procesar la solicitud' });
-    }
-}));
+            // Everything went fine with Multer, continue with your logic
+            const id_animacion = req.params.id_animacion;
+            const animacion_ = await Animacion.findOne({ '_id': id_animacion }).exec();
+
+            if (!animacion_) {
+                return res.status(404).json({ message: 'No se encontró la animación' });
+            }
+
+            // Aquí puedes obtener los detalles de la imagen subida
+            const dimensions = sizeOf(req.file.path);
+
+            const idImagenObjId = mongoose.Types.ObjectId(req.params.id_imagen);
+            let imagen_subida = null;
+
+            // Actualizar la lista de imágenes de la animación
+            animacion_.lista_imagenes = animacion_.lista_imagenes.map((img) => {
+                if (idImagenObjId.equals(img._id)) {
+                    console.log("actualiza la imagen");
+                    img.ancho = dimensions.width;
+                    img.alto = dimensions.height;
+                    img.ancho_original = dimensions.width;
+                    img.alto_original = dimensions.height;
+                    imagen_subida = img;
+                }
+                return img;
+            });
+
+            await animacion_.save();
+
+            // Devolver los detalles de la imagen actualizada en la respuesta
+            res.json(imagen_subida);
+        } catch (error) {
+            console.error('Error en la carga de imagen o en la actualización:', error);
+            res.status(500).json({ message: 'Error en el servidor al procesar la solicitud' });
+        }
+    });
+});
 
 router_api.get("/animacion/proyecto/:id_proyecto", (req, res)=>{
     const id_proyecto = req.params.id_proyecto;
