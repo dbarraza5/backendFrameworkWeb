@@ -36,7 +36,6 @@ const storage = multer.diskStorage({
         if (!animacion_) {
             return cb(new Error('No se encontró la animación'));
         }
-        console.log(animacion_);
         if (animacion_){
             const proyecto_ = await Proyecto.findOne({ '_id': animacion_.id_proyecto }).exec();
             const path_ = '/home/app/storage/usuarios/'+proyecto_.usuario_id
