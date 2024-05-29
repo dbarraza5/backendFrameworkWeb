@@ -207,11 +207,10 @@ router_api.put("/animacion/agregar-imagen/:id_animacion", (req, res) => {
                     img.alto = dimensions.height;
                     img.ancho_original = dimensions.width;
                     img.alto_original = dimensions.height;
-                    imagen_subida = img;
+                    imagen_subida = img.toObject();
                 }
                 return img;
             });
-
             await animacion_.save();
 
             // Devolver los detalles de la imagen actualizada en la respuesta
