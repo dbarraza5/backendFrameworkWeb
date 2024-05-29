@@ -163,12 +163,10 @@ const imageneSchema = new mongoose.Schema({
     ancho_original: {
         type: Number,
         required: true,
-        immutable: true
     },
     alto_original: {
         type: Number,
         required: true,
-        immutable: true
     },
 
     visible: {
