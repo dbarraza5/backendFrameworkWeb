@@ -173,6 +173,10 @@ const imageneSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    opacidad: {
+        type: Number,
+        default: 1,
+    }
 });
 
 // Define el esquema para los grupos de figuras
