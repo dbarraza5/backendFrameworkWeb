@@ -267,24 +267,10 @@ router_api.get("/animacion/eliminar-imagen/:id_animacion/:id_imagen", (async (re
 
         const animacion_ = await Animacion.findOne({ '_id': id_animacion }).exec();
 
-        //res.json(req.params);
-        //return res.send(req.params)
-
         let imagen_subida = null;
         const idImagenObjId = mongoose.Types.ObjectId(id_imagen);
         animacion_.lista_imagenes = animacion_.lista_imagenes.filter((img)=>{
             return !idImagenObjId.equals(img._id);
-            /*if(idImagenObjId.equals(img._id)){
-                console.log("actualiza la imagen");
-                //img.path =
-                img.x = update.x;
-                img.y = update.y;
-                img.ancho = update.ancho;
-                img.alto = update.alto;
-                img.opacidad = update.opacidad;
-                imagen_subida = img;
-            }
-            return img;*/
         });
         //animacion_.lista_imagenes = [];
         await animacion_.save();
