@@ -244,6 +244,7 @@ router_api.put("/animacion/actualizar-imagen/:id_animacion", (async (req, res)=>
                 img.ancho = update.ancho;
                 img.alto = update.alto;
                 img.opacidad = update.opacidad;
+                img.visible = update.visible;
                 imagen_subida = img;
             }
             return img;
