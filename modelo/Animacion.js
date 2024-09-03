@@ -94,6 +94,7 @@ const animacion_default = {
             //"tiempo_inicial": 500,
             //"tiempo_final": 2000,
             //"ciclo": 1,
+            "visible": true,
             "color": "#000000",
             "cx": 0,
             "cy": 0,
@@ -196,11 +197,11 @@ const grupoFigurasSchema = new mongoose.Schema({
     tiempo_final: {
         type: Number,
         required: true
-    },
-    ciclo: {
+    },*/
+    visible: {
         type: Boolean,
         required: true
-    },*/
+    },
     color: {
         type: String,
         required: true
