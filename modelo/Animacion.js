@@ -421,4 +421,4 @@ AnimacionSchema.pre('save', async function (next) {
 
 const Animacion = mongoose.model('Animacion', AnimacionSchema)
 
-module.exports = {Animacion, crear_animacion}
+module.exports = {Animacion, crear_animacion,grupoFigurasSchema}

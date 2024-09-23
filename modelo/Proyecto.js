@@ -1,4 +1,6 @@
 const mongoose = require("mongoose")
+const {Eventos} = require("./Eventos");
+const {crear_evento} = require("./Eventos");
 //const  = require("./Animacion");
 const {Animacion,crear_animacion} = require("./Animacion");
 
@@ -24,6 +26,10 @@ ProyectoSchema.pre('save', async function (next){
             console.log(data_animacion)
             const animacion = new Animacion(data_animacion)
             await animacion.save()
+
+            const data_evento = crear_evento(id_);
+            const eventos = new Eventos(data_animacion)
+            await eventos.save()
             next()
         }catch (error){
             console.log("error al crear la animacion: ", error.message)
