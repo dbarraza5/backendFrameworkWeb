@@ -28,7 +28,7 @@ ProyectoSchema.pre('save', async function (next){
             await animacion.save()
 
             const data_evento = crear_evento(id_);
-            const eventos = new Eventos(data_animacion)
+            const eventos = new Eventos(data_evento)
             await eventos.save()
             next()
         }catch (error){

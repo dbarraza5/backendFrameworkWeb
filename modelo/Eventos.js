@@ -38,9 +38,16 @@ const evento_default = {
     ]
 };
 
+const eventos_default ={
+    eventos:[
+        evento_default
+    ],
+    version:1
+}
+
 const crear_evento=(id_proyecto)=>{
     return {
-        ...evento_default,
+        ...eventos_default,
         id_proyecto: id_proyecto,
     }
 }
