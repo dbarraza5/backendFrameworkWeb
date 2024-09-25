@@ -3,7 +3,7 @@ const {grupoFigurasSchema} = require("./Animacion");
 
 
 const evento_default = {
-    nombre: "Evento de ejemplo",
+    nombre: "EventoGeneral",
     nodo_padre: "NodoPadreID",
     visible: true,
     bucle: false,
@@ -39,6 +39,7 @@ const evento_default = {
 };
 
 const eventos_default ={
+    nombre: "evento_default",
     eventos:[
         evento_default
     ],
@@ -158,6 +159,10 @@ const EventosSchema = new mongoose.Schema({
         type: String,
         required: true,
         immutable: true
+    },
+    nombre: {
+        type: String,
+        required: true,
     },
     fecha_actualizacion: {
         type: Date,

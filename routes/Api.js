@@ -6,7 +6,8 @@ const express = require("express");
 const Proyecto = require("../modelo/Proyecto")
 const multer = require("multer");
 const {Animacion} = require("../modelo/Animacion");
-
+const {Eventos} = require("../modelo/Eventos");
+const {subirImagen} = require("../controller/ImagenAnimacion");
 const router_api = express.Router();
 
 
@@ -161,7 +162,7 @@ router_api.get('/imagen/:nombreImagen', (req, res) => {
 });
 
 const sizeOf = require('image-size');
-const {subirImagen} = require("../controller/ImagenAnimacion");
+
 
 /*const imagen_ = {
         nombre: req.file.originalname,
@@ -303,6 +304,17 @@ router_api.get("/animacion/proyecto-slim/:id_proyecto", (req, res)=>{
         }
         res.json(pro)
     }).select(["_id", "nombre_animacion", "raiz", "id_copia_consolidado", "consolidado", "fecha_actualizacion", "fecha_creacion"]);
+});
+
+
+router_api.get("/eventos/proyecto-slim/:id_proyecto", (req, res)=>{
+    const id_proyecto = req.params.id_proyecto;
+    Eventos.find({ 'id_proyecto': id_proyecto},function (err, pro) {
+        if (err){
+            return res.status(500).send({"error": err.message})
+        }
+        res.json(pro)
+    }).select(["_id", "nombre", "fecha_actualizacion", "fecha_creacion"]);
 });
 
 
