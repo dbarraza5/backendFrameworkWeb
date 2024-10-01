@@ -317,5 +317,21 @@ router_api.get("/eventos/proyecto-slim/:id_proyecto", (req, res)=>{
     }).select(["_id", "nombre", "fecha_actualizacion", "fecha_creacion"]);
 });
 
+router_api.get("/evento/id/:id_evento", (req, res)=>{
+
+    const id_evento = req.params.id_evento;
+
+    Eventos.findOne({ '_id': id_evento},function (err, pro) {
+        if (err ){
+            return res.status(500).send({"error": err.message})
+        }
+        if(pro==null){
+            return res.status(404).send({"error": "evento no encontrada"})
+        }
+        res.json(pro)
+    });
+
+});
+
 
 module.exports = router_api
