@@ -35,7 +35,11 @@ const evento_default = {
 
             }
         }
-    ]
+    ],
+    script:`function script(){
+        console.log("hola script");
+    }
+    `
 };
 
 const eventos_default ={
@@ -150,6 +154,10 @@ const EventoSchema = new mongoose.Schema({
             required: false  // Puedes decidir si es obligatorio o no
         }
     }],
+    script: {
+        type: String,
+    },
+    //crear una seccion de solo script y no tenga que ser movimientos
 });
 
 
