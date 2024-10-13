@@ -102,6 +102,7 @@ const animacion_default = {
             //"grupo_movimientos": [
             //    "default"
             //],
+            "clases":["root"],
             "lista_figuras": [],
             "lista_pintado":[
                 {
@@ -217,6 +218,9 @@ const grupoFigurasSchema = new mongoose.Schema({
     capa: {
         type: Number,
         required: true
+    },
+    clases:{
+        type:[String]
     },
     //grupo_movimientos: [{
     //    type: mongoose.Schema.Types.ObjectId,
