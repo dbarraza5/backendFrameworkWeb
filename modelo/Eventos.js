@@ -18,21 +18,21 @@ const evento_default = {
             tipo: 1, // Puede representar algún tipo de objeto
             x_inicial: 10,
             y_inicial: 20,
-            grupos_figuras: [], // Puedes agregar aquí datos del grupo de figuras si fuera necesario
-            clases: ["clase1", "clase2"]
+            id_objeto:"cubo"
         }
     ],
     movimientos: [
         {
             tipo_accion: 1, // Puede representar algún tipo de acción
             sub_tipo_accion: 2, // Subtipo de acción
+            ids_grupos:["cubo"],
             x_inicial: 30,
             y_inicial: 40,
             tiempo_inicio: 0,
             tiempo_final: 50,
             bucle: false,
             datos:{
-
+                velocidad:20,
             }
         }
     ],
@@ -47,6 +47,87 @@ const eventos_default ={
     eventos:[
         evento_default
     ],
+    grupos_figuras: [
+        {
+            "nombre": "cubo",
+            "nodo_padre": "root",
+            "visible": true,
+            "color": "#000000",
+            "cx": 0,
+            "cy": 0,
+            "capa": 0,
+            "clases": [
+                "cubo"
+            ],
+            "lista_figuras": [
+                {
+                    "nombre": "frec0",
+                    "tipo_figura": "RECTA",
+                    "atributos": {
+                        "x1": 0,
+                        "y1": -43,
+                        "x2": 0,
+                        "y2": 44,
+                        "cx": 213,
+                        "cy": 208
+                    },
+                    "_id": "670dd15cbd2f56f53b076917"
+                },
+                {
+                    "nombre": "frec1",
+                    "tipo_figura": "RECTA",
+                    "atributos": {
+                        "x1": -42,
+                        "y1": 0,
+                        "x2": 43,
+                        "y2": 0,
+                        "cx": 255,
+                        "cy": 252
+                    },
+                    "_id": "670dd15cbd2f56f53b076918"
+                },
+                {
+                    "nombre": "frec2",
+                    "tipo_figura": "RECTA",
+                    "atributos": {
+                        "x1": -41,
+                        "y1": 0,
+                        "x2": 41,
+                        "y2": 1,
+                        "cx": 254,
+                        "cy": 165
+                    },
+                    "_id": "670dd15cbd2f56f53b076919"
+                },
+                {
+                    "nombre": "frec3",
+                    "tipo_figura": "RECTA",
+                    "atributos": {
+                        "x1": -1,
+                        "y1": -43,
+                        "x2": 2,
+                        "y2": 43,
+                        "cx": 296,
+                        "cy": 209
+                    },
+                    "_id": "670dd15cbd2f56f53b07691a"
+                }
+            ],
+            "lista_pintado": [
+                {
+                    "color": "#000000",
+                    "visible": true,
+                    "elementos": [
+                        []
+                    ],
+                    "_id": "670dd15cbd2f56f53b07691b"
+                }
+            ],
+            "_id": "670dd15cbd2f56f53b076916",
+            "cx_solid": 0,
+            "cy_solid": 0
+        }
+    ], // Puedes agregar aquí datos del grupo de figuras si fuera necesario
     version:1
 }
 
@@ -105,6 +186,10 @@ const EventoSchema = new mongoose.Schema({
             type: Number,
             required: true
         },
+        id_objeto: {
+            type: String,
+            required: true
+        },
         x_inicial: {
             type: Number,
             required: true
@@ -112,12 +197,6 @@ const EventoSchema = new mongoose.Schema({
         y_inicial: {
             type: Number,
             required: true
-        },
-        grupos_figuras: {
-            type: [grupoFigurasSchema],
-        },
-        clases: {
-            type: [String],
         },
     }],
     movimientos: [{
@@ -128,6 +207,9 @@ const EventoSchema = new mongoose.Schema({
         sub_tipo_accion: {
             type: Number,
             required: true
+        },
+        ids_grupos: {
+            type: [String],
         },
         x_inicial: {
             type: Number,
@@ -149,7 +231,7 @@ const EventoSchema = new mongoose.Schema({
             type: Boolean,
             required: true
         },
-        dato: {
+        datos: {
             type: Object,  // Este es el nuevo campo que añadiste
             required: false  // Puedes decidir si es obligatorio o no
         }
@@ -183,7 +265,9 @@ const EventosSchema = new mongoose.Schema({
     eventos: {
         type: [EventoSchema],
     },
-
+    grupos_figuras: {
+        type: [grupoFigurasSchema],
+    },
     version: {
         type: String,
     },
