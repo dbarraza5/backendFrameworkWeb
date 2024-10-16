@@ -26,8 +26,8 @@ const evento_default = {
             tipo: 1, // Puede representar algún tipo de acción
             //sub_tipo_accion: 2, // Subtipo de acción
             ids_grupos:["cubo"],
-            x_inicial: 30,
-            y_inicial: 40,
+            /*x_inicial: 30,
+            y_inicial: 40,*/
             tiempo_inicio: 0,
             tiempo_final: 50,
             bucle: false,
@@ -211,14 +211,14 @@ const EventoSchema = new mongoose.Schema({
         ids_grupos: {
             type: [String],
         },
-        x_inicial: {
+        /*x_inicial: {
             type: Number,
             required: true
         },
         y_inicial: {
             type: Number,
             required: true
-        },
+        },*/
         tiempo_inicio: {
             type: Number,
             required: true
