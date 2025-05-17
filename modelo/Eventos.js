@@ -32,14 +32,11 @@ const evento_default = {
             tiempo_final: 50,
             bucle: false,
             datos:{
-                velocidad:20,
+                velocidad:120,
             }
         }
     ],
-    script:`function script(){
-        console.log("hola script");
-    }
-    `
+    script:"function script(){console.log('vbbv');}"
 };
 
 const eventos_default ={
