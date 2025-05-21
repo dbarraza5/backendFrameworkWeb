@@ -4,7 +4,7 @@ const {grupoFigurasSchema} = require("./Animacion");
 
 const evento_default = {
     nombre: "EventoGeneral",
-    nodo_padre: "NodoPadreID",
+    nodo_padre: "Nodo_Default",
     visible: true,
     bucle: false,
     tiempo_inicio: 0,
@@ -39,10 +39,83 @@ const evento_default = {
     script:"function script(){console.log('vbbv');}"
 };
 
+
+const evento_default2 = {
+    nombre: "Evento_2",
+    nodo_padre: "EventoGeneral",
+    visible: true,
+    bucle: false,
+    tiempo_inicio: 80,
+    tiempo_final: 140,
+    x: 40,
+    y: 0,
+    reposicionar: true,
+    tiempo_relativo: 0,
+    objetos: [
+        {
+            tipo: 1, // Puede representar algún tipo de objeto
+            x_inicial: 0,
+            y_inicial: 0,
+            id_objeto:"cubo"
+        }
+    ],
+    movimientos: [
+        {
+            tipo: 1, // Puede representar algún tipo de acción
+            //sub_tipo_accion: 2, // Subtipo de acción
+            ids_grupos:["cubo"],
+            /*x_inicial: 30,
+            y_inicial: 40,*/
+            tiempo_inicio: 0,
+            tiempo_final: 30,
+            bucle: false,
+            datos:{
+                velocidad:290,
+            }
+        },
+        {
+            tipo: 2, // Puede representar algún tipo de acción
+            //sub_tipo_accion: 2, // Subtipo de acción
+            ids_grupos:["cubo"],
+            /*x_inicial: 30,
+            y_inicial: 40,*/
+            tiempo_inicio: 30,
+            tiempo_final: 60,
+            bucle: false,
+            datos:{
+                angulo:45,
+                velocidad:70,
+            }
+        }
+    ],
+    script:null
+};
+
+
+const evento_default3 = {
+    nombre: "Evento_3",
+    nodo_padre: "EventoGeneral",
+    visible: true,
+    bucle: false,
+    tiempo_inicio: 1000,
+    tiempo_final: 1222,
+    x: 111,
+    y: 222,
+    reposicionar: false,
+    tiempo_relativo: 1.1,
+    objetos: [
+    ],
+    movimientos: [
+    ],
+    script:null
+};
+
 const eventos_default ={
     nombre: "evento_default",
     eventos:[
-        evento_default
+        evento_default,
+        evento_default2,
+        evento_default3
     ],
     grupos_figuras: [
         {
