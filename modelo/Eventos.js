@@ -7,6 +7,7 @@ const evento_default = {
     nodo_padre: "Nodo_Default",
     visible: true,
     bucle: false,
+    tiempo_bucle: 0,
     tiempo_inicio: 0,
     tiempo_final: 100,
     x: 0,
@@ -18,7 +19,13 @@ const evento_default = {
             tipo: 1, // Puede representar algún tipo de objeto
             x_inicial: 10,
             y_inicial: 20,
-            id_objeto:"cubo"
+            id_objeto:"cubo",
+            movimientos:[
+                {
+                    tipo: 1,//1: centro figura 2: figuras del grupo
+                    id_mov: "mov1"
+                }
+            ]
         }
     ],
     movimientos: [
@@ -31,6 +38,8 @@ const evento_default = {
             tiempo_inicio: 0,
             tiempo_final: 50,
             bucle: false,
+            tiempo_bucle: 0,
+            activo:true,
             datos:{
                 velocidad:120,
             }
@@ -45,6 +54,7 @@ const evento_default2 = {
     nodo_padre: "EventoGeneral",
     visible: true,
     bucle: false,
+    tiempo_bucle: 0,
     tiempo_inicio: 80,
     tiempo_final: 140,
     x: 40,
@@ -68,10 +78,12 @@ const evento_default2 = {
             y_inicial: 40,*/
             tiempo_inicio: 0,
             tiempo_final: 30,
-            bucle: false,
+            bucle: true,
+            tiempo_bucle: 5,
             datos:{
                 velocidad:290,
-            }
+            },
+            activo:true,
         },
         {
             tipo: 2, // Puede representar algún tipo de acción
@@ -82,10 +94,12 @@ const evento_default2 = {
             tiempo_inicio: 30,
             tiempo_final: 60,
             bucle: false,
+            tiempo_bucle: 0,
             datos:{
                 angulo:45,
                 velocidad:70,
-            }
+            },
+            activo:false,
         }
     ],
     script:null
@@ -97,6 +111,7 @@ const evento_default3 = {
     nodo_padre: "EventoGeneral",
     visible: true,
     bucle: false,
+    tiempo_bucle: 0,
     tiempo_inicio: 1000,
     tiempo_final: 1222,
     x: 111,
@@ -227,6 +242,10 @@ const EventoSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
+    tiempo_bucle: {
+        type: Number,
+        required: true
+    },
     tiempo_inicio: {
         type: Number,
         required: true
@@ -268,6 +287,16 @@ const EventoSchema = new mongoose.Schema({
             type: Number,
             required: true
         },
+        movimientos: [{
+            tipo:{
+                type: Number,
+                required: true
+            },
+            id_mov:{
+                type: String,
+                required: true
+            }
+        }]
     }],
     movimientos: [{
         tipo: {
@@ -289,6 +318,10 @@ const EventoSchema = new mongoose.Schema({
             type: Number,
             required: true
         },*/
+        tiempo_bucle: {
+            type: Number,
+            required: true
+        },
         tiempo_inicio: {
             type: Number,
             required: true
@@ -298,6 +331,10 @@ const EventoSchema = new mongoose.Schema({
             required: true
         },
         bucle: {
+            type: Boolean,
+            required: true
+        },
+        activo: {
             type: Boolean,
             required: true
         },
