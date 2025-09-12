@@ -107,6 +107,46 @@ router_api.get("/proyecto/user/:id_usuario", (req, res)=>{
 
 });
 
+
+router_api.get("/proyecto-animacion/:id_usuario", async (req, res) => {
+    try {
+        const { id_usuario } = req.params;
+
+        // 1) Traer proyectos del usuario
+        const proyectos = await Proyecto.find({ usuario_id: id_usuario }).exec();
+
+        // 2) Para cada proyecto, traer sus animaciones
+        const lista_animaciones_proyectos = await Promise.all(
+            proyectos.map(async (proyecto) => {
+                const animaciones_raw = await Animacion.find({ id_proyecto: proyecto._id }).exec();
+
+                const animaciones = animaciones_raw.map((animacion)=>{
+                    return {
+                        //"id_proyecto": animacion.id_proyecto,
+                        "nombre_proyecto": animacion.nombre_proyecto,
+                        "id_animacion": animacion._id,
+                        "nombre_animacion": animacion.nombre_animacion,
+                        //"grupos_figuras": animacion.grupos_figuras,
+                        "fecha_actualizacion": animacion.fecha_actualizacion,
+                        "fecha_creacion": animacion.fecha_creacion,
+                    };
+                });
+                return {
+                    id_proyecto: proyecto._id,
+                    nombre_proyecto: proyecto.nombre, // opcional: agregar más campos
+                    animaciones,
+                };
+            })
+        );
+
+        // 3) Enviar la respuesta ya resuelta
+        return res.json(lista_animaciones_proyectos);
+    } catch (err) {
+        console.error("Error en /proyecto-animacion:", err);
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 router_api.get("/animacion/id/:id_animacion", (req, res)=>{
 
     const id_animacion = req.params.id_animacion;
