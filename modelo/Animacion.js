@@ -121,11 +121,12 @@ const animacion_default = {
     //"grupo_movimientos": []
 }
 
-const crear_animacion=(id_proyecto, id_usuario, nombre_animacion, raiz)=>{
+const crear_animacion=(id_proyecto, id_usuario, nombre_animacion, raiz, descripcion='')=>{
     return {
         ...animacion_default,
         id_proyecto: id_proyecto,
         nombre_animacion: nombre_animacion,
+        descripcion: descripcion,
         nombre_verificacion: id_proyecto+"."+nombre_animacion,
         raiz: raiz
     }
@@ -288,6 +289,10 @@ const AnimacionSchema = new mongoose.Schema({
     nombre_animacion: {
         type: String,
         required: true
+    },
+    descripcion: {
+        type: String,
+        //required: false
     },
     nombre_verificacion: {
         type: String,

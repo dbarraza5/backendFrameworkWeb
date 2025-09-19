@@ -171,10 +171,13 @@ router_api.put("/animacion/id/:id_animacion", ((req, res)=>{
         new: true, // Devuelve el documento actualizado
         runValidators: true // Habilita la validación
     };
-    const nombres = update.grupos_figuras.map((grupo) => grupo.nombre);
 
-    if (new Set(nombres).size !== nombres.length) {
-        return res.status(500).send({"error": 'No se permiten objetos con el mismo valor en el atributo nombre'})
+    if(update.grupos_figuras){
+        const nombres = update.grupos_figuras.map((grupo) => grupo.nombre);
+
+        if (new Set(nombres).size !== nombres.length) {
+            return res.status(500).send({"error": 'No se permiten objetos con el mismo valor en el atributo nombre'})
+        }
     }
 
     const doc =  Animacion.findOneAndUpdate(filter, update, opciones, function( error, result){
@@ -186,6 +189,23 @@ router_api.put("/animacion/id/:id_animacion", ((req, res)=>{
         }
     })
 }));
+
+
+router_api.post("/animacion", async (req, res) => {
+    try {
+        const { id_proyecto, nombre, descripcion } = req.body;
+
+        const data_animacion = crear_animacion(id_proyecto, null, nombre, true, descripcion);
+        const animacion = await Animacion.create(data_animacion);
+
+        // 201 Created + JSON con el id en string
+        return res.status(201).json({ id: animacion._id.toString() });
+        // Alternativa: res.status(201).json({ id: animacion.id }); // 'id' es el virtual string de Mongoose
+    } catch (err) {
+        console.error("Error al crear animación:", err);
+        return res.status(500).json({ message: "Error interno del servidor" });
+    }
+});
 
 router_api.get('/imagen/:nombreImagen', (req, res) => {
     const nombreImagen = req.params.nombreImagen;
@@ -202,6 +222,7 @@ router_api.get('/imagen/:nombreImagen', (req, res) => {
 });
 
 const sizeOf = require('image-size');
+const {crear_animacion} = require("../modelo/Animacion");
 
 
 /*const imagen_ = {
