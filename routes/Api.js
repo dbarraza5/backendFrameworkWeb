@@ -190,6 +190,25 @@ router_api.put("/animacion/id/:id_animacion", ((req, res)=>{
     })
 }));
 
+router_api.delete("/animacion/id/:id_animacion", (req, res) => {
+    const id_animacion = req.params.id_animacion;
+
+    Animacion.findByIdAndDelete(id_animacion, (error, result) => {
+        if (error) {
+            return res.status(500).send({ "error": error.message });
+        }
+
+        if (!result) {
+            return res.status(404).send({ "error": "Animación no encontrada" });
+        }
+
+        return res.send({
+            message: "Animación eliminada correctamente",
+            id: result._id
+        });
+    });
+});
+
 
 router_api.post("/animacion", async (req, res) => {
     try {
@@ -199,7 +218,7 @@ router_api.post("/animacion", async (req, res) => {
         const animacion = await Animacion.create(data_animacion);
 
         // 201 Created + JSON con el id en string
-        return res.status(201).json({ id: animacion._id.toString() });
+        return res.status(201).json(animacion);//json({ id: animacion._id.toString() });
         // Alternativa: res.status(201).json({ id: animacion.id }); // 'id' es el virtual string de Mongoose
     } catch (err) {
         console.error("Error al crear animación:", err);
