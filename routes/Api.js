@@ -147,6 +147,28 @@ router_api.get("/proyecto-animacion/:id_usuario", async (req, res) => {
     }
 });
 
+router_api.post("/animaciones/lista", async (req, res) => {
+    try {
+        const { ids } = req.body; // espera algo como { "ids": ["id1", "id2", "id3"] }
+
+        if (!ids || !Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ error: "Debes enviar un array de IDs" });
+        }
+
+        const animaciones = await Animacion.find({ _id: { $in: ids } },
+            { grupos_figuras: 1, _id: 1, nombre_animacion: 1 } );
+
+        if (!animaciones || animaciones.length === 0) {
+            return res.status(404).json({ error: "No se encontraron animaciones con esos IDs" });
+        }
+
+        return res.json(animaciones);
+    } catch (error) {
+        console.error("Error al recuperar animaciones:", error);
+        return res.status(500).json({ error: error.message });
+    }
+});
+
 router_api.get("/animacion/id/:id_animacion", (req, res)=>{
 
     const id_animacion = req.params.id_animacion;
