@@ -336,9 +336,9 @@ const AnimacionSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    meta_figuras: [{
+    meta_figuras: {
         type:[metaFiguraSchema]
-    }],
+    },
     meta_movimientos: [{
         nombre: {
             type: String,

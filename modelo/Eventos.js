@@ -470,9 +470,9 @@ const EventosSchema = new mongoose.Schema({
     grupos_figuras: {
         type: [grupoFigurasSchema],
     },
-    meta_figuras: [{
+    meta_figuras: {
         type:[metaFiguraSchema]
-    }],
+    },
     version: {
         type: String,
     },
