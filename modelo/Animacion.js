@@ -273,6 +273,24 @@ const grupoMovimientosSchema = new mongoose.Schema({
     }]
 });
 
+const metaFiguraSchema = new mongoose.Schema({
+    nombre: {
+        type: String,
+        required: true
+    },
+    atributos: [{
+        nombre: {
+            type: String,
+            required: true
+        },
+        tipo: {
+            type: String,
+            required: true
+        },
+        valor_defecto: Number
+    }]
+});
+
 // Crea el modelo para los grupos de figuras utilizando el esquema definido
 const GrupoFiguras = mongoose.model('GrupoFiguras', grupoFigurasSchema);
 
@@ -319,21 +337,7 @@ const AnimacionSchema = new mongoose.Schema({
         default: Date.now
     },
     meta_figuras: [{
-        nombre: {
-            type: String,
-            required: true
-        },
-        atributos: [{
-            nombre: {
-                type: String,
-                required: true
-            },
-            tipo: {
-                type: String,
-                required: true
-            },
-            valor_defecto: Number
-        }]
+        type:[metaFiguraSchema]
     }],
     meta_movimientos: [{
         nombre: {
@@ -430,4 +434,4 @@ AnimacionSchema.pre('save', async function (next) {
 
 const Animacion = mongoose.model('Animacion', AnimacionSchema)
 
-module.exports = {Animacion, crear_animacion,grupoFigurasSchema}
+module.exports = {Animacion, crear_animacion,grupoFigurasSchema,  metaFiguraSchema}

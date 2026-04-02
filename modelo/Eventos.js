@@ -1,5 +1,5 @@
 const mongoose = require("mongoose")
-const {grupoFigurasSchema} = require("./Animacion");
+const {grupoFigurasSchema, metaFiguraSchema} = require("./Animacion");
 
 
 const evento_default = {
@@ -213,6 +213,83 @@ const eventos_default ={
             "cy_solid": 0
         }
     ], // Puedes agregar aquí datos del grupo de figuras si fuera necesario
+    meta_figuras: [
+        {
+            "nombre": "PUNTO",
+            "atributos": [
+                {
+                    "nombre": "cx",
+                    "tipo": "TIPO_INT",
+                    "valor_defecto": 0
+                },
+                {
+                    "nombre": "cy",
+                    "tipo": "TIPO_INT",
+                    "valor_defecto": 0
+                }
+            ]
+        },
+        {
+            "nombre": "RECTA",
+            "atributos": [
+                {
+                    "nombre": "x1",
+                    "tipo": "TIPO_INT",
+                    "valor_defecto": -20
+                },
+                {
+                    "nombre": "y1",
+                    "tipo": "TIPO_INT",
+                    "valor_defecto": 0
+                },
+                {
+                    "nombre": "x2",
+                    "tipo": "TIPO_INT",
+                    "valor_defecto": 20
+                },
+                {
+                    "nombre": "y2",
+                    "tipo": "TIPO_INT",
+                    "valor_defecto": 0
+                },
+                {
+                    "nombre": "cx",
+                    "tipo": "TIPO_INT",
+                    "valor_defecto": 200
+                },
+                {
+                    "nombre": "cy",
+                    "tipo": "TIPO_INT",
+                    "valor_defecto": 200
+                }
+            ]
+        },
+        {
+            "nombre": "CIRCULO",
+            "atributos": [
+                {
+                    "nombre": "radiox",
+                    "tipo": "TIPO_INT",
+                    "valor_defecto": 10
+                },
+                {
+                    "nombre": "radioy",
+                    "tipo": "TIPO_INT",
+                    "valor_defecto": 10
+                },
+                {
+                    "nombre": "cx",
+                    "tipo": "TIPO_INT",
+                    "valor_defecto": 0
+                },
+                {
+                    "nombre": "cy",
+                    "tipo": "TIPO_INT",
+                    "valor_defecto": 0
+                }
+            ]
+        }
+    ],
     version:1
 }
 
@@ -222,6 +299,95 @@ const crear_evento=(id_proyecto)=>{
         id_proyecto: id_proyecto,
     }
 }
+
+
+const MovimientoSchema = new mongoose.Schema({
+    tipo: {
+        type: Number,
+        required: true
+    },
+    /*sub_tipo_accion: {
+        type: Number,
+        required: true
+    },*/
+    ids_grupos: {
+        type: [String],
+    },
+    /*x_inicial: {
+        type: Number,
+        required: true
+    },
+    y_inicial: {
+        type: Number,
+        required: true
+    },*/
+    tiempo_bucle: {
+        type: Number,
+        required: true
+    },
+    tiempo_inicio: {
+        type: Number,
+        required: true
+    },
+    tiempo_final: {
+        type: Number,
+        required: true
+    },
+    bucle: {
+        type: Boolean,
+        required: true
+    },
+    activo: {
+        type: Boolean,
+        required: true
+    },
+    datos: {
+        type: Object,  // Este es el nuevo campo que añadiste
+        required: false  // Puedes decidir si es obligatorio o no
+    }
+});
+
+const OperacionSchema = new mongoose.Schema({
+    tipo: {
+        type: Number,
+        required: true
+    },
+    datos: {
+        type: Object,  // Este es el nuevo campo que añadiste
+        required: false  // Puedes decidir si es obligatorio o no
+    }
+});
+
+const ObjetoSchema = new mongoose.Schema({
+    tipo: {
+        type: Number,
+        required: true
+    },
+    id_objeto: {
+        type: String,
+        required: true
+    },
+    x_inicial: {
+        type: Number,
+        required: true
+    },
+    y_inicial: {
+        type: Number,
+        required: true
+    },
+    movimientos: [{
+        // es el tipo de aplicacion al grupo grupo o figura
+        tipo:{
+            type: Number,
+            required: true
+        },
+        id_mov:{
+            type: String,
+            required: true
+        }
+    }],
+    operaciones: [OperacionSchema]
+});
 
 
 // Define el esquema para los para los eventos
@@ -270,79 +436,8 @@ const EventoSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    objetos: [{
-        tipo: {
-            type: Number,
-            required: true
-        },
-        id_objeto: {
-            type: String,
-            required: true
-        },
-        x_inicial: {
-            type: Number,
-            required: true
-        },
-        y_inicial: {
-            type: Number,
-            required: true
-        },
-        movimientos: [{
-            tipo:{
-                type: Number,
-                required: true
-            },
-            id_mov:{
-                type: String,
-                required: true
-            }
-        }]
-    }],
-    movimientos: [{
-        tipo: {
-            type: Number,
-            required: true
-        },
-        /*sub_tipo_accion: {
-            type: Number,
-            required: true
-        },*/
-        ids_grupos: {
-            type: [String],
-        },
-        /*x_inicial: {
-            type: Number,
-            required: true
-        },
-        y_inicial: {
-            type: Number,
-            required: true
-        },*/
-        tiempo_bucle: {
-            type: Number,
-            required: true
-        },
-        tiempo_inicio: {
-            type: Number,
-            required: true
-        },
-        tiempo_final: {
-            type: Number,
-            required: true
-        },
-        bucle: {
-            type: Boolean,
-            required: true
-        },
-        activo: {
-            type: Boolean,
-            required: true
-        },
-        datos: {
-            type: Object,  // Este es el nuevo campo que añadiste
-            required: false  // Puedes decidir si es obligatorio o no
-        }
-    }],
+    objetos: [ObjetoSchema],
+    movimientos: [MovimientoSchema],
     script: {
         type: String,
     },
@@ -375,6 +470,9 @@ const EventosSchema = new mongoose.Schema({
     grupos_figuras: {
         type: [grupoFigurasSchema],
     },
+    meta_figuras: [{
+        type:[metaFiguraSchema]
+    }],
     version: {
         type: String,
     },
