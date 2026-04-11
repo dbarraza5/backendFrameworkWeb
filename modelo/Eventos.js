@@ -20,31 +20,42 @@ const evento_default = {
             x_inicial: 10,
             y_inicial: 20,
             id_objeto:"cubo",
-            movimientos:[
+            movimientos: [
                 {
-                    tipo: 1,//1: centro figura 2: figuras del grupo
-                    id_mov: "mov1"
+                    tipo: 1, // Puede representar algún tipo de acción
+                    //sub_tipo_accion: 2, // Subtipo de acción
+                    ids_grupos:["cubo"],
+                    /*x_inicial: 30,
+                    y_inicial: 40,*/
+                    tiempo_inicio: 0,
+                    tiempo_final: 50,
+                    bucle: false,
+                    tiempo_bucle: 0,
+                    activo:true,
+                    datos:{
+                        velocidad:120,
+                    }
                 }
-            ]
+            ],
         }
     ],
-    movimientos: [
-        {
-            tipo: 1, // Puede representar algún tipo de acción
-            //sub_tipo_accion: 2, // Subtipo de acción
-            ids_grupos:["cubo"],
-            /*x_inicial: 30,
-            y_inicial: 40,*/
-            tiempo_inicio: 0,
-            tiempo_final: 50,
-            bucle: false,
-            tiempo_bucle: 0,
-            activo:true,
-            datos:{
-                velocidad:120,
-            }
-        }
-    ],
+    // movimientos: [
+    //     {
+    //         tipo: 1, // Puede representar algún tipo de acción
+    //         //sub_tipo_accion: 2, // Subtipo de acción
+    //         ids_grupos:["cubo"],
+    //         /*x_inicial: 30,
+    //         y_inicial: 40,*/
+    //         tiempo_inicio: 0,
+    //         tiempo_final: 50,
+    //         bucle: false,
+    //         tiempo_bucle: 0,
+    //         activo:true,
+    //         datos:{
+    //             velocidad:120,
+    //         }
+    //     }
+    // ],
     script:"function script(){console.log('vbbv');}"
 };
 
@@ -66,42 +77,43 @@ const evento_default2 = {
             tipo: 1, // Puede representar algún tipo de objeto
             x_inicial: 0,
             y_inicial: 0,
-            id_objeto:"cubo"
+            id_objeto:"cubo",
+            movimientos: [
+                {
+                    tipo: 1, // Puede representar algún tipo de acción
+                    //sub_tipo_accion: 2, // Subtipo de acción
+                    ids_grupos:["cubo"],
+                    /*x_inicial: 30,
+                    y_inicial: 40,*/
+                    tiempo_inicio: 0,
+                    tiempo_final: 30,
+                    bucle: true,
+                    tiempo_bucle: 5,
+                    datos:{
+                        velocidad:290,
+                    },
+                    activo:true,
+                },
+                {
+                    tipo: 2, // Puede representar algún tipo de acción
+                    //sub_tipo_accion: 2, // Subtipo de acción
+                    ids_grupos:["cubo"],
+                    /*x_inicial: 30,
+                    y_inicial: 40,*/
+                    tiempo_inicio: 300,
+                    tiempo_final: 1600,
+                    bucle: true,
+                    tiempo_bucle: 500,
+                    datos:{
+                        angulo:45,
+                        velocidad:70,
+                    },
+                    activo:false,
+                }
+            ],
         }
     ],
-    movimientos: [
-        {
-            tipo: 1, // Puede representar algún tipo de acción
-            //sub_tipo_accion: 2, // Subtipo de acción
-            ids_grupos:["cubo"],
-            /*x_inicial: 30,
-            y_inicial: 40,*/
-            tiempo_inicio: 0,
-            tiempo_final: 30,
-            bucle: true,
-            tiempo_bucle: 5,
-            datos:{
-                velocidad:290,
-            },
-            activo:true,
-        },
-        {
-            tipo: 2, // Puede representar algún tipo de acción
-            //sub_tipo_accion: 2, // Subtipo de acción
-            ids_grupos:["cubo"],
-            /*x_inicial: 30,
-            y_inicial: 40,*/
-            tiempo_inicio: 300,
-            tiempo_final: 1600,
-            bucle: true,
-            tiempo_bucle: 500,
-            datos:{
-                angulo:45,
-                velocidad:70,
-            },
-            activo:false,
-        }
-    ],
+
     script:null
 };
 
@@ -120,8 +132,8 @@ const evento_default3 = {
     tiempo_relativo: 1.1,
     objetos: [
     ],
-    movimientos: [
-    ],
+    // movimientos: [
+    // ],
     script:null
 };
 
@@ -300,6 +312,51 @@ const crear_evento=(id_proyecto)=>{
     }
 }
 
+const MacroSchema = new mongoose.Schema({
+    tipo: {
+        type: Number,
+        required: true
+    },
+    capa: {
+        type: Number,
+        required: true
+    },
+    tags:{
+        type:[String]
+    },
+    ids_grupos: {
+        type: [String],
+    },
+    x_inicial: {
+        type: Number,
+        required: true
+    },
+    y_inicial: {
+        type: Number,
+        required: true
+    },
+    tiempo_inicio: {
+        type: Number,
+        required: true
+    },
+    tiempo_final: {
+        type: Number,
+        required: true
+    },
+    bucle: {
+        type: Boolean,
+        required: true
+    },
+    activo: {
+        type: Boolean,
+        required: true
+    },
+    datos: {
+        type: Object,  // Este es el nuevo campo que añadiste
+        required: false  // Puedes decidir si es obligatorio o no
+    }
+});
+
 
 const MovimientoSchema = new mongoose.Schema({
     tipo: {
@@ -375,17 +432,18 @@ const ObjetoSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    movimientos: [{
-        // es el tipo de aplicacion al grupo grupo o figura
-        tipo:{
-            type: Number,
-            required: true
-        },
-        id_mov:{
-            type: String,
-            required: true
-        }
-    }],
+    movimientos: [MovimientoSchema],
+    // movimientos: [{
+    //     // es el tipo de aplicacion al grupo grupo o figura
+    //     tipo:{
+    //         type: Number,
+    //         required: true
+    //     },
+    //     id_mov:{
+    //         type: String,
+    //         required: true
+    //     }
+    // }],
     operaciones: [OperacionSchema]
 });
 
@@ -437,7 +495,9 @@ const EventoSchema = new mongoose.Schema({
         required: true
     },
     objetos: [ObjetoSchema],
-    movimientos: [MovimientoSchema],
+
+    macros: [MacroSchema],
+    // movimientos: [MovimientoSchema],
     script: {
         type: String,
     },
