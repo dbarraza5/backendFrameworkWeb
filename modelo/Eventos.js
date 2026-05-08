@@ -23,10 +23,7 @@ const evento_default = {
             movimientos: [
                 {
                     tipo: 1, // Puede representar algún tipo de acción
-                    //sub_tipo_accion: 2, // Subtipo de acción
-                    ids_grupos:["cubo"],
-                    /*x_inicial: 30,
-                    y_inicial: 40,*/
+                    tipo_efecto: 1,
                     tiempo_inicio: 0,
                     tiempo_final: 50,
                     bucle: false,
@@ -82,6 +79,7 @@ const evento_default2 = {
                 {
                     tipo: 1, // Puede representar algún tipo de acción
                     //sub_tipo_accion: 2, // Subtipo de acción
+                    tipo_efecto: 1,
                     ids_grupos:["cubo"],
                     /*x_inicial: 30,
                     y_inicial: 40,*/
@@ -97,6 +95,7 @@ const evento_default2 = {
                 {
                     tipo: 2, // Puede representar algún tipo de acción
                     //sub_tipo_accion: 2, // Subtipo de acción
+                    tipo_efecto: 1,
                     ids_grupos:["cubo"],
                     /*x_inicial: 30,
                     y_inicial: 40,*/
@@ -363,13 +362,18 @@ const MovimientoSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+
+    tipo_efecto: {//1: al objeto, 2: a las figuras internas
+        type: Number,
+        required: true
+    },
     /*sub_tipo_accion: {
         type: Number,
         required: true
     },*/
-    ids_grupos: {
-        type: [String],
-    },
+    // ids_grupos: {
+    //     type: [String],
+    // },
     /*x_inicial: {
         type: Number,
         required: true
