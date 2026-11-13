@@ -564,6 +564,8 @@ Cada grupo representa un objeto visual en la escena:
 | `camara` `{ancho, alto, zoom}` | Solo en el grupo cámara (clase `camara`): tamaño del cuadro y zoom. Su `cx, cy` es el centro de lo que ve. |
 | `orden_profundidad` | Sus hijos se dibujan por `plano` y luego por la altura de sus pies (lo de más abajo, delante). |
 | `plano` | Profundidad del grupo cuando su nivel ordena por profundidad: menor = detrás (por defecto 0). |
+| `efecto` | Solo en grupos con la clase `efecto` (Fase 9): `{tipo, ...parametros}` (tipo: `explosion`, `tornado`, `disparo`, `viento` o `particulas`). Su `cx, cy` (con claves) es donde actúa. |
+| `fisica` | Reacción del objeto a los efectos: `{modo, nivel, masa, rebote, friccion}` (modo: `fijo`, `rigido` o `desarmar`). Sin el campo, fijo. |
 
 ---
 

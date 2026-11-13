@@ -248,6 +248,10 @@ const grupoFigurasSchema = new mongoose.Schema({
     camara: {ancho: {type: Number}, alto: {type: Number}, zoom: {type: Number}},
     orden_profundidad: {type: Boolean},
     plano: {type: Number},
+    // Fase 9: efecto (grupo con clase "efecto": {tipo, ...parametros}) y reaccion
+    // fisica del objeto ({modo: fijo|rigido|desarmar, nivel, masa, rebote, friccion})
+    efecto: {type: mongoose.Schema.Types.Mixed},
+    fisica: {type: mongoose.Schema.Types.Mixed},
     opacidad: {type: Number},
     instancia: {
         id_eventos: {type: String},
