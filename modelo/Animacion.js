@@ -244,6 +244,10 @@ const grupoFigurasSchema = new mongoose.Schema({
     // Fase 7B: que hace el objeto despues de su ultima clave: repetir, ida_vuelta,
     // continuar (vacio = quedarse en la ultima)
     claves_bucle: {type: String},
+    // Fase 8: camara (solo el grupo camara), orden por profundidad de sus hijos y plano
+    camara: {ancho: {type: Number}, alto: {type: Number}, zoom: {type: Number}},
+    orden_profundidad: {type: Boolean},
+    plano: {type: Number},
     opacidad: {type: Number},
     instancia: {
         id_eventos: {type: String},

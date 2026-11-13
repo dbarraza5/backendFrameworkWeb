@@ -406,7 +406,7 @@ Devuelve solo: `_id`, `nombre`, `fecha_actualizacion`, `fecha_creacion`.
 GET /api/evento/id/:id_evento
 ```
 
-Devuelve el documento completo del evento incluyendo el árbol de `eventos`, `grupos_figuras` y `meta_figuras`.
+Devuelve el documento completo del evento incluyendo el árbol de `eventos`, `grupos_figuras`, `meta_figuras` y `escena` (configuración de la escena, p. ej. `{"orden_profundidad": true}`).
 
 **Respuesta 404** si no existe.
 
@@ -561,6 +561,9 @@ Cada grupo representa un objeto visual en la escena:
 | `opacidad` | Opacidad base del grupo (0..1); se hereda a sus descendientes. |
 | `claves` | Fotogramas clave por propiedad: `{x:[{t, v, interp}], y, rotacion, escala_x, escala_y, opacidad}`. `t` en ms de escena; `interp`: `lineal`, `suave`, `entrar`, `salir` o `mantener`. |
 | `claves_bucle` | Qué hace el objeto después de su última clave: `repetir`, `ida_vuelta` o `continuar` (acumula posición y rotación por vuelta). Vacío: se queda en la última. |
+| `camara` `{ancho, alto, zoom}` | Solo en el grupo cámara (clase `camara`): tamaño del cuadro y zoom. Su `cx, cy` es el centro de lo que ve. |
+| `orden_profundidad` | Sus hijos se dibujan por `plano` y luego por la altura de sus pies (lo de más abajo, delante). |
+| `plano` | Profundidad del grupo cuando su nivel ordena por profundidad: menor = detrás (por defecto 0). |
 
 ---
 

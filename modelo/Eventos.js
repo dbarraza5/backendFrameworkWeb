@@ -534,6 +534,12 @@ const EventosSchema = new mongoose.Schema({
     grupos_figuras: {
         type: [grupoFigurasSchema],
     },
+    // Fase 8B del editor: configuracion de la escena, p. ej. {orden_profundidad: true}
+    // (los objetos de primer nivel se dibujan por altura: lo de mas abajo, delante).
+    escena: {
+        type: mongoose.Schema.Types.Mixed,
+        default: {},
+    },
     meta_figuras: {
         type:[metaFiguraSchema]
     },
