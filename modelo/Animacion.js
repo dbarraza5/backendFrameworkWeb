@@ -234,6 +234,16 @@ const grupoFigurasSchema = new mongoose.Schema({
         ancla_x: {type: Number},
         ancla_y: {type: Number},
     },
+    // Instancia por referencia (Fase 6): el grupo es el contenedor de un asset (el
+    // documento de eventos de otro proyecto, con su dibujo y sus eventos). Sus partes
+    // NO se guardan: el editor las carga del asset y las anima con `evento`
+    // (desplazado `desfase` ms, repitiendose si `bucle`).
+    instancia: {
+        id_eventos: {type: String},
+        evento: {type: String},
+        bucle: {type: Boolean},
+        desfase: {type: Number},
+    },
     //grupo_movimientos: [{
     //    type: mongoose.Schema.Types.ObjectId,
     //    ref: 'GrupoMovimientos'
