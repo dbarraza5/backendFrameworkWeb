@@ -223,6 +223,17 @@ const grupoFigurasSchema = new mongoose.Schema({
     clases:{
         type:[String]
     },
+    // Transformacion de instancia (frontend: Clases/EditorAnimacion/TransformacionInstancia.js):
+    // { rotacion, escala_x, escala_y, ancla_x, ancla_y }. Opcional; se aplica al
+    // dibujar, sin modificar las figuras. Sin declararlo aca Mongoose lo descartaba
+    // al guardar (schema estricto).
+    transformacion: {
+        rotacion: {type: Number},
+        escala_x: {type: Number},
+        escala_y: {type: Number},
+        ancla_x: {type: Number},
+        ancla_y: {type: Number},
+    },
     //grupo_movimientos: [{
     //    type: mongoose.Schema.Types.ObjectId,
     //    ref: 'GrupoMovimientos'
