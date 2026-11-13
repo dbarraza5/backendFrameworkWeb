@@ -558,6 +558,9 @@ Cada grupo representa un objeto visual en la escena:
 |---|---|
 | `transformacion` `{rotacion, escala_x, escala_y, ancla_x, ancla_y}` | Transformación de instancia que el editor aplica al dibujar, sin modificar las figuras. |
 | `instancia` `{id_eventos, nombre, version, evento, bucle, desfase}` | El grupo es el contenedor de una **instancia por referencia** de otro documento de eventos (asset). Sus partes no se guardan: el editor las carga del asset (o de la versión `version`, si está fijada) y las anima con `evento`. |
+| `opacidad` | Opacidad base del grupo (0..1); se hereda a sus descendientes. |
+| `claves` | Fotogramas clave por propiedad: `{x:[{t, v, interp}], y, rotacion, escala_x, escala_y, opacidad}`. `t` en ms de escena; `interp`: `lineal`, `suave`, `entrar`, `salir` o `mantener`. |
+| `claves_bucle` | Qué hace el objeto después de su última clave: `repetir`, `ida_vuelta` o `continuar` (acumula posición y rotación por vuelta). Vacío: se queda en la última. |
 
 ---
 

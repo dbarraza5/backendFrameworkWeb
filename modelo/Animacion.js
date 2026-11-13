@@ -238,6 +238,13 @@ const grupoFigurasSchema = new mongoose.Schema({
     // documento de eventos de otro proyecto, con su dibujo y sus eventos). Sus partes
     // NO se guardan: el editor las carga del asset y las anima con `evento`
     // (desplazado `desfase` ms, repitiendose si `bucle`).
+    // Fase 7: fotogramas clave por propiedad {x:[{t,v,interp}], y, rotacion, escala_x,
+    // escala_y, opacidad} y opacidad base (0..1). Ver frontend Clases/EditorEvento/Claves.js
+    claves: {type: mongoose.Schema.Types.Mixed},
+    // Fase 7B: que hace el objeto despues de su ultima clave: repetir, ida_vuelta,
+    // continuar (vacio = quedarse en la ultima)
+    claves_bucle: {type: String},
+    opacidad: {type: Number},
     instancia: {
         id_eventos: {type: String},
         nombre: {type: String},     // nombre del asset en la Biblioteca
