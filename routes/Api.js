@@ -7,6 +7,7 @@ const Proyecto = require("../modelo/Proyecto")
 const multer = require("multer");
 const {Animacion} = require("../modelo/Animacion");
 const {Eventos} = require("../modelo/Eventos");
+const {VersionEventos} = require("../modelo/VersionEventos");
 const {subirImagen} = require("../controller/ImagenAnimacion");
 const router_api = express.Router();
 
@@ -458,6 +459,52 @@ router_api.put("/evento/id/:id_evento", ((req, res)=>{
         }
     })
 }));
+
+
+// ---- Versiones congeladas de un documento de Eventos (Fase 6C) ----
+
+// Lista liviana de las versiones de un documento (la mas nueva primero).
+router_api.get("/evento/id/:id_evento/versiones", async (req, res) => {
+    try {
+        const lista = await VersionEventos.find({id_eventos: req.params.id_evento})
+            .select(["_id", "id_eventos", "numero", "descripcion", "fecha_creacion"])
+            .sort({numero: -1});
+        res.json(lista);
+    } catch (err) {
+        res.status(500).send({"error": err.message});
+    }
+});
+
+// Toma una foto del estado actual (guardado) del documento como version nueva.
+router_api.post("/evento/id/:id_evento/versiones", async (req, res) => {
+    try {
+        const doc = await Eventos.findById(req.params.id_evento).lean();
+        if (!doc) return res.status(404).send({"error": "evento no encontrado"});
+        const ultima = await VersionEventos.findOne({id_eventos: String(doc._id)}).sort({numero: -1}).select("numero");
+        const version = await VersionEventos.create({
+            id_eventos: String(doc._id),
+            numero: (ultima ? ultima.numero : 0) + 1,
+            descripcion: String((req.body && req.body.descripcion) || ""),
+            contenido: doc,
+        });
+        res.status(201).json({_id: version._id, id_eventos: version.id_eventos, numero: version.numero,
+            descripcion: version.descripcion, fecha_creacion: version.fecha_creacion});
+    } catch (err) {
+        res.status(500).send({"error": err.message});
+    }
+});
+
+// Documento de una version, con la misma forma que GET /evento/id/:id (mas `version`).
+router_api.get("/evento/version/:id_version", async (req, res) => {
+    try {
+        const v = await VersionEventos.findById(req.params.id_version).lean();
+        if (!v) return res.status(404).send({"error": "version no encontrada"});
+        res.json({...v.contenido, _id: v.id_eventos,
+            version: {_id: v._id, numero: v.numero, descripcion: v.descripcion, fecha_creacion: v.fecha_creacion}});
+    } catch (err) {
+        res.status(500).send({"error": err.message});
+    }
+});
 
 
 module.exports = router_api

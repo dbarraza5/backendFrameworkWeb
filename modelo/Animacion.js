@@ -240,6 +240,8 @@ const grupoFigurasSchema = new mongoose.Schema({
     // (desplazado `desfase` ms, repitiendose si `bucle`).
     instancia: {
         id_eventos: {type: String},
+        nombre: {type: String},     // nombre del asset en la Biblioteca
+        version: {type: String},    // Fase 6C: _id de la version congelada; vacio = la ultima
         evento: {type: String},
         bucle: {type: Boolean},
         desfase: {type: Number},

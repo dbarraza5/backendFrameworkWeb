@@ -467,6 +467,50 @@ Actualiza cualquier campo del documento de eventos.
 
 ---
 
+### Versiones congeladas de un evento
+
+Una versión es una foto del documento de eventos tal como estaba guardado en ese momento. Se usa para fijar una instancia por referencia a un estado del asset: la instancia guarda el `_id` de la versión en `instancia.version`.
+
+Las versiones viven en la colección `versiones_eventos` (modelo `modelo/VersionEventos.js`). Son inmutables y se numeran 1, 2, 3… por documento.
+
+#### Listar versiones
+
+```
+GET /api/evento/id/:id_evento/versiones
+```
+
+Devuelve la lista resumida, la más nueva primero:
+```json
+[{ "_id": "...", "id_eventos": "...", "numero": 2, "descripcion": "", "fecha_creacion": "2026-11-13T19:09:05.000Z" }]
+```
+
+#### Crear una versión
+
+```
+POST /api/evento/id/:id_evento/versiones
+```
+
+Copia el documento guardado actual.
+
+- **Body (opcional):** `{ "descripcion": "texto" }`.
+- **Respuesta 201:** la versión creada, en el mismo formato resumido.
+- **Respuesta 404:** si el evento no existe.
+
+#### Obtener una versión
+
+```
+GET /api/evento/version/:id_version
+```
+
+Devuelve el documento congelado con la misma forma que `GET /api/evento/id/:id_evento` (`_id` es el del documento original) más un campo `version`:
+```json
+{ "_id": "<id_eventos>", "eventos": [], "grupos_figuras": [], "version": { "_id": "...", "numero": 2, "descripcion": "", "fecha_creacion": "..." } }
+```
+
+**Respuesta 404** si no existe.
+
+---
+
 ## Modelos de datos
 
 ### Animación — estructura de `grupos_figuras`
@@ -507,6 +551,13 @@ Cada grupo representa un objeto visual en la escena:
 | `PUNTO` | `cx`, `cy` |
 | `RECTA` | `x1`, `y1`, `x2`, `y2`, `cx`, `cy` |
 | `CIRCULO` | `radiox`, `radioy`, `cx`, `cy` |
+
+**Campos opcionales del grupo:**
+
+| Campo | Para qué |
+|---|---|
+| `transformacion` `{rotacion, escala_x, escala_y, ancla_x, ancla_y}` | Transformación de instancia que el editor aplica al dibujar, sin modificar las figuras. |
+| `instancia` `{id_eventos, nombre, version, evento, bucle, desfase}` | El grupo es el contenedor de una **instancia por referencia** de otro documento de eventos (asset). Sus partes no se guardan: el editor las carga del asset (o de la versión `version`, si está fijada) y las anima con `evento`. |
 
 ---
 
