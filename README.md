@@ -467,6 +467,21 @@ Actualiza cualquier campo del documento de eventos.
 
 ---
 
+### Crear un evento (Guardar como)
+
+```
+POST /api/eventos
+```
+
+Crea un documento de eventos en un proyecto existente. El editor lo usa para **Guardar como**.
+
+- **Body:** `{ "id_proyecto": "...", "nombre": "Escena (copia)", "eventos": [], "grupos_figuras": [], "meta_figuras": [], "escena": {} }`. Son obligatorios `id_proyecto` y `nombre`.
+- **Respuesta 201:** `{ "_id": "...", "nombre": "...", "id_proyecto": "..." }`.
+- **Respuesta 400:** si falta `id_proyecto` o `nombre`.
+- **Respuesta 404:** si el proyecto no existe.
+
+---
+
 ### Versiones congeladas de un evento
 
 Una versión es una foto del documento de eventos tal como estaba guardado en ese momento. Se usa para fijar una instancia por referencia a un estado del asset: la instancia guarda el `_id` de la versión en `instancia.version`.

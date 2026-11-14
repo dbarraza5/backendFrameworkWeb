@@ -461,6 +461,29 @@ router_api.put("/evento/id/:id_evento", ((req, res)=>{
 }));
 
 
+// ---- Crear un documento de Eventos ("Guardar como" del editor) ----
+// Body: {id_proyecto, nombre, eventos, grupos_figuras, meta_figuras?, escena?}
+router_api.post("/eventos", async (req, res) => {
+    try {
+        const b = req.body || {};
+        if (!b.id_proyecto || !String(b.nombre || "").trim()) {
+            return res.status(400).send({"error": "Faltan id_proyecto o nombre"});
+        }
+        const proyecto = await Proyecto.findById(b.id_proyecto).select("_id");
+        if (!proyecto) return res.status(404).send({"error": "proyecto no encontrado"});
+        const doc = await Eventos.create({
+            id_proyecto: String(b.id_proyecto), nombre: String(b.nombre).trim(),
+            eventos: Array.isArray(b.eventos) ? b.eventos : [],
+            grupos_figuras: Array.isArray(b.grupos_figuras) ? b.grupos_figuras : [],
+            meta_figuras: Array.isArray(b.meta_figuras) ? b.meta_figuras : [],
+            escena: b.escena || {},
+        });
+        res.status(201).json({_id: doc._id, nombre: doc.nombre, id_proyecto: doc.id_proyecto});
+    } catch (err) {
+        res.status(500).send({"error": err.message});
+    }
+});
+
 // ---- Versiones congeladas de un documento de Eventos (Fase 6C) ----
 
 // Lista liviana de las versiones de un documento (la mas nueva primero).
