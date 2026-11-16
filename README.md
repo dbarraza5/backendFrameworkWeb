@@ -577,6 +577,28 @@ Solo el dueño del proyecto (403 si no). Audio de hasta 15 MB. Con llave: `GET /
 
 ---
 
+## Respaldo de proyectos (`routes/Respaldo.js`, en `/api` con sesión)
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| GET | `/api/proyecto/:id_proyecto/exportar` | `.zip` con el proyecto completo (solo el dueño) |
+| GET | `/api/proyectos/exportar` | `.zip` con todos los proyectos del usuario (`proyectos/<nombre>.zip`) |
+| POST | `/api/proyectos/importar` | multipart `archivo` (.zip de un proyecto o de varios, hasta 1 GB) → `[{_id, nombre, renombrado, conteos, archivos, avisos}]` |
+
+Contenido del `.zip` (`controller/RespaldoProyecto.js`, formato `respaldo-proyecto-animacion` v1):
+- `manifiesto.json` y `LEEME.txt`;
+- `datos/proyecto.json`, `animaciones.json`, `eventos.json`, `versiones.json` y `sonidos.json`, en Extended JSON de MongoDB (`{"$oid"}`, `{"$date"}`), tal cual están en la base;
+- `archivos/…`: la carpeta del proyecto en el storage (imágenes y audio).
+
+**Importar** siempre crea un proyecto **nuevo** del usuario que importa:
+- cambia todos los ids (proyecto, documentos y usuario) y corrige cada referencia, en los datos y en las rutas de los archivos. Así sirve en una base vacía, en otra cuenta o para duplicar;
+- si el nombre ya existe, agrega "(importado)";
+- si algo falla, deshace lo insertado.
+
+No se exportan las llaves de autoría, porque son credenciales. Sin dependencias nuevas: el zip lo arma `lib/Zip.js` con `zlib`.
+
+---
+
 ## Modelos de datos
 
 ### Animación — estructura de `grupos_figuras`
