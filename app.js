@@ -75,6 +75,11 @@ const {verifyToken} = require("./middleware/Autentificacion");
 const {isAuthenticated} = require("./middleware/Autentificacion");
 app.use("/api", isAuthenticated,verifyToken, router_api)
 
+// Autoria asistida (Fase A2): acceso con llave de proyecto, sin sesion de navegador
+const router_autoria = require("./routes/Autoria")
+const {verificarLlave} = require("./middleware/LlaveAutoria")
+app.use("/autoria", verificarLlave, router_autoria)
+
 
 //https://dev.to/emmysteven/solved-mongoose-unique-index-not-working-45d5
 

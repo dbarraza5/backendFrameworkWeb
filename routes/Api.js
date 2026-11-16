@@ -461,6 +461,63 @@ router_api.put("/evento/id/:id_evento", ((req, res)=>{
 }));
 
 
+// ---- Llaves de autoria asistida (Fase A2): las administra el dueno del proyecto ----
+const {LlaveAutoria, hashLlave, generarLlave} = require("../modelo/LlaveAutoria");
+
+async function proyectoDelUsuario(req, res) {
+    const id = req.params.id_proyecto;
+    if (!mongoose.Types.ObjectId.isValid(id)) { res.status(400).send({"error": "id de proyecto invalido"}); return null; }
+    const p = await Proyecto.findById(id).select(["_id", "usuario_id", "nombre"]);
+    if (!p) { res.status(404).send({"error": "proyecto no encontrado"}); return null; }
+    if (String(p.usuario_id) !== String(req.session.user.id)) { res.status(403).send({"error": "el proyecto no es tuyo"}); return null; }
+    return p;
+}
+
+router_api.get("/proyecto/:id_proyecto/llaves", async (req, res) => {
+    try {
+        const p = await proyectoDelUsuario(req, res);
+        if (!p) return;
+        const llaves = await LlaveAutoria.find({id_proyecto: String(p._id)}).select("-hash").sort({creada: -1});
+        res.json(llaves);
+    } catch (err) { res.status(500).send({"error": err.message}); }
+});
+
+// Crea una llave. La llave completa se devuelve UNA sola vez (solo se guarda su hash).
+router_api.post("/proyecto/:id_proyecto/llaves", async (req, res) => {
+    try {
+        const p = await proyectoDelUsuario(req, res);
+        if (!p) return;
+        const llave = generarLlave();
+        const doc = await LlaveAutoria.create({id_proyecto: String(p._id), nombre: String((req.body && req.body.nombre) || "Asistente").trim() || "Asistente",
+            prefijo: llave.slice(0, 13), hash: hashLlave(llave)});
+        res.status(201).json({_id: doc._id, nombre: doc.nombre, prefijo: doc.prefijo, creada: doc.creada, llave});
+    } catch (err) { res.status(500).send({"error": err.message}); }
+});
+
+router_api.delete("/proyecto/:id_proyecto/llaves/:id_llave", async (req, res) => {
+    try {
+        const p = await proyectoDelUsuario(req, res);
+        if (!p) return;
+        const r = await LlaveAutoria.findOneAndUpdate({_id: req.params.id_llave, id_proyecto: String(p._id), revocada: null},
+            {$set: {revocada: new Date()}}, {new: true}).select("-hash");
+        if (!r) return res.status(404).send({"error": "llave no encontrada o ya revocada"});
+        res.json(r);
+    } catch (err) { res.status(500).send({"error": err.message}); }
+});
+
+// ---- Crear un asset desde el editor (Fase A5: Biblioteca -> Generar...) ----
+// Body: lo compilado del formato simple {nombre, grupos_figuras, eventos, escena}.
+// Crea el dibujo + el documento de eventos, igual que POST /autoria/assets.
+router_api.post("/proyecto/:id_proyecto/assets", async (req, res) => {
+    try {
+        const p = await proyectoDelUsuario(req, res);
+        if (!p) return;
+        const {crearAsset} = require("../controller/AutoriaComun");
+        const r = await crearAsset(String(p._id), req.body);
+        res.status(r.status).json(r.body);
+    } catch (err) { res.status(500).send({ok: false, errores: [err.message]}); }
+});
+
 // ---- Crear un documento de Eventos ("Guardar como" del editor) ----
 // Body: {id_proyecto, nombre, eventos, grupos_figuras, meta_figuras?, escena?}
 router_api.post("/eventos", async (req, res) => {

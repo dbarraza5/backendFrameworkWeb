@@ -362,6 +362,11 @@ const AnimacionSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    // Fase A6: llave de autoria que creo el dibujo (solo esa llave puede borrarlo)
+    creado_por_llave: {
+        type: String,
+        default: null
+    },
     consolidado: {
         type: Boolean,
         default: false

@@ -540,6 +540,11 @@ const EventosSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.Mixed,
         default: {},
     },
+    // Fase A6: llave de autoria que creo el documento (solo esa llave puede borrarlo)
+    creado_por_llave: {
+        type: String,
+        default: null,
+    },
     meta_figuras: {
         type:[metaFiguraSchema]
     },

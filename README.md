@@ -526,6 +526,41 @@ Devuelve el documento congelado con la misma forma que `GET /api/evento/id/:id_e
 
 ---
 
+## Autoría asistida: `/autoria` (llave de proyecto)
+
+API para que el asistente cree y actualice assets y escenas de **un** proyecto sin sesión de navegador. Se monta **fuera** de `/api`, así que no exige sesión ni JWT: se autentica con una **llave de proyecto**, en la cabecera `X-Llave-Autoria: <llave>` o `Authorization: Llave <llave>`. Todo lo que se lee o escribe pertenece al proyecto de la llave, y **no hay rutas para borrar**. El formato simple se compila del lado del cliente: las rutas reciben `{nombre, grupos_figuras, eventos, escena}`.
+
+| Método y ruta | Qué hace |
+|---|---|
+| `GET /autoria/catalogo` | Documentos de eventos del proyecto: `{id, nombre, tipo: asset\|escena, eventos: [{nombre, tiempo_final}]}`. |
+| `GET /autoria/eventos/:id` | Documento completo. 404 si no es del proyecto. |
+| `GET /autoria/versiones/:id` | Versión congelada (6C) de un documento del proyecto, con el mismo formato que `GET /api/evento/version/:id`. 404 si no existe o es de otro proyecto. La usan las herramientas de render para las instancias fijadas a una versión. |
+| `POST /autoria/validar` | Valida sin guardar: estructura, nombres repetidos, padres existentes, partes virtuales (no se guardan), que las instancias apunten a documentos **del mismo proyecto** y `EventoGeneral`. |
+| `POST /autoria/assets` | Crea un asset: dibujo (`animacions`) + documento de eventos. 409 si el nombre existe. |
+| `POST /autoria/escenas` | Crea una escena (documento de eventos). 409 si el nombre existe. |
+| `PUT /autoria/eventos/:id` | Actualiza `grupos_figuras`, `eventos`, `escena` o `nombre`. Antes guarda un **respaldo automático** como versión congelada y lo devuelve en `respaldo: {id_version, numero}`. |
+| `DELETE /autoria/eventos/:id[?forzar=1]` | Borra un documento **creado por esta misma llave** (`creado_por_llave`), junto con su dibujo (`animacions` con la misma llave y `descripcion`) y sus versiones. `403` si lo creó otra llave o el usuario; `409` si otra escena lo usa como asset (salvo `?forzar=1`). Devuelve `{borrado, dibujos, versiones}`. |
+
+Errores: `400 {ok: false, errores: [...]}`, `401` (falta la llave, o es inválida o revocada), `404`, `409`.
+
+### Llaves de autoría (en `/api`, solo el dueño del proyecto)
+
+| Método y ruta | Qué hace |
+|---|---|
+| `GET /api/proyecto/:id_proyecto/llaves` | Lista: `nombre`, `prefijo`, `creada`, `ultimo_uso`, `revocada`. Nunca el hash ni la llave. |
+| `POST /api/proyecto/:id_proyecto/llaves` | Body `{nombre}`. Devuelve la llave completa **una sola vez**; solo se guarda su hash sha256 (colección `llaves_autoria`). |
+| `DELETE /api/proyecto/:id_proyecto/llaves/:id_llave` | La **revoca** (deja de funcionar al instante). |
+
+### Crear un asset desde el editor (sesión, solo el dueño del proyecto)
+
+| Método y ruta | Qué hace |
+|---|---|
+| `POST /api/proyecto/:id_proyecto/assets` | *Biblioteca → Generar…* del editor. Body: lo compilado del formato simple `{nombre, grupos_figuras, eventos?, escena?}`. Crea el dibujo y el documento de eventos con la **misma validación y creación** que `POST /autoria/assets` (`controller/AutoriaComun.js`). `201 {ok, id_eventos, id_dibujo}`, `400 {errores}`, `403` si el proyecto no es tuyo, `409` si el nombre existe. |
+
+Responden 403 si el proyecto no es del usuario de la sesión.
+
+---
+
 ## Modelos de datos
 
 ### Animación — estructura de `grupos_figuras`
