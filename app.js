@@ -74,6 +74,8 @@ const router_api = require("./routes/Api")
 const {verifyToken} = require("./middleware/Autentificacion");
 const {isAuthenticated} = require("./middleware/Autentificacion");
 app.use("/api", isAuthenticated,verifyToken, router_api)
+// Sonidos de un proyecto (planeacion_sonido.md del frontend)
+app.use("/api", isAuthenticated, verifyToken, require("./routes/Sonidos"))
 
 // Autoria asistida (Fase A2): acceso con llave de proyecto, sin sesion de navegador
 const router_autoria = require("./routes/Autoria")

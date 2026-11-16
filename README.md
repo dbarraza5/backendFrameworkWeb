@@ -559,6 +559,22 @@ Errores: `400 {ok: false, errores: [...]}`, `401` (falta la llave, o es inválid
 
 Responden 403 si el proyecto no es del usuario de la sesión.
 
+## Sonidos de un proyecto (`routes/Sonidos.js`, en `/api` con sesión)
+
+Plan en el frontend: `documento/planeacion_sonido.md`. Colección `sonidos` (`modelo/Sonido.js`): `{id_proyecto, nombre (único en el proyecto), estado: "pendiente" | "listo", archivo: {ruta, tipo, tamano, original}, revision, duracion_ms, picos, nota}`. Los archivos van en `storage/usuarios/<usuario>/proyectos/<proyecto>/sonidos/<id>.<ext>`. Escenas y assets los usan por id: clips en `escena.sonidos`, `evento.sonidos` y `grupo.sonidos.clips`; reacciones en `grupo.sonidos.reacciones` y `escena.reacciones`; marcas en `sonido_marca`; ajuste por instancia en `instancia.audio`.
+
+| Método y ruta | Qué hace |
+|---|---|
+| `GET /api/proyecto/:id_proyecto/sonidos` | Lista (sin la ruta interna del archivo). |
+| `POST /api/proyecto/:id_proyecto/sonidos` | Multipart: `archivo` (opcional), `nombre`, `nota`, `duracion_ms`, `picos` (JSON). Con archivo queda **listo**; sin archivo, **pendiente**. 409 si el nombre existe. |
+| `PUT /api/sonido/:id/archivo` | Sube o reemplaza el archivo (un pendiente pasa a listo; sube `revision`). |
+| `PATCH /api/sonido/:id` | `{nombre?, nota?}`. |
+| `GET /api/sonido/:id/usos` | Documentos del proyecto que lo usan. |
+| `DELETE /api/sonido/:id[?forzar=1]` | Lo borra con su archivo. 409 si se usa (salvo `forzar`). |
+| `GET /api/sonido/:id/archivo` | El audio (para el editor). |
+
+Solo el dueño del proyecto (403 si no). Audio de hasta 15 MB. Con llave: `GET /autoria/sonidos` (lista) y `POST /autoria/sonidos` `{nombre, nota}` (crea un **pendiente**: el asistente no sube audio).
+
 ---
 
 ## Modelos de datos

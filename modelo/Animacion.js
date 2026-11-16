@@ -253,6 +253,10 @@ const grupoFigurasSchema = new mongoose.Schema({
     efecto: {type: mongoose.Schema.Types.Mixed},
     fisica: {type: mongoose.Schema.Types.Mixed},
     opacidad: {type: Number},
+    // Sonido (planeacion_sonido.md del frontend): {clips: [...], reacciones: {al_impactar,
+    // al_soltarse, ...}} del objeto o efecto, y su marca "lleva" | "no_lleva"
+    sonidos: {type: mongoose.Schema.Types.Mixed},
+    sonido_marca: {type: String},
     instancia: {
         id_eventos: {type: String},
         nombre: {type: String},     // nombre del asset en la Biblioteca
@@ -260,6 +264,7 @@ const grupoFigurasSchema = new mongoose.Schema({
         evento: {type: String},
         bucle: {type: Boolean},
         desfase: {type: Number},
+        audio: {volumen: {type: Number}, silencio: {type: Boolean}},   // ajuste del sonido heredado
     },
     //grupo_movimientos: [{
     //    type: mongoose.Schema.Types.ObjectId,

@@ -501,6 +501,11 @@ const EventoSchema = new mongoose.Schema({
     objetos: [ObjetoSchema],
 
     macros: [MacroSchema],
+    // Sonido (planeacion_sonido.md del frontend): clips del evento {id, sonido, t (ms desde
+    // el inicio del evento), volumen, pan, recorte, bucle, fundido} -- las instancias de
+    // este asset los heredan -- y marca "lleva" | "no_lleva" (vacio = sin decidir)
+    sonidos: {type: mongoose.Schema.Types.Mixed},
+    sonido_marca: {type: String},
     // movimientos: [MovimientoSchema],
     script: {
         type: String,

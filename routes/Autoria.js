@@ -54,6 +54,31 @@ router.get("/versiones/:id", async (req, res) => {
     } catch (err) { res.status(500).send({error: err.message}); }
 });
 
+// Sonidos del proyecto (planeacion_sonido.md del frontend). El asistente no sube audio:
+// puede listarlos y crear sonidos PENDIENTES por nombre (con una nota de lo que debe
+// sonar), que el seguimiento del editor le recuerda subir al usuario.
+const {Sonido, sonidoPublico} = require("../modelo/Sonido");
+
+router.get("/sonidos", async (req, res) => {
+    try {
+        const lista = await Sonido.find({id_proyecto: req.id_proyecto}).sort({nombre: 1});
+        res.json(lista.map((s) => ({...sonidoPublico(s), picos: undefined})));
+    } catch (err) { res.status(500).send({error: err.message}); }
+});
+
+router.post("/sonidos", async (req, res) => {
+    try {
+        const nombre = String((req.body && req.body.nombre) || "").trim();
+        if (!nombre) return res.status(400).json({ok: false, errores: ["falta el nombre"]});
+        if (await Sonido.findOne({id_proyecto: req.id_proyecto, nombre})) {
+            return res.status(409).json({ok: false, errores: [`ya existe el sonido "${nombre}"`]});
+        }
+        const s = await Sonido.create({id_proyecto: req.id_proyecto, nombre, nota: String(req.body.nota || ""),
+            creado_por_llave: String(req.llave._id)});
+        res.status(201).json({ok: true, ...sonidoPublico(s)});
+    } catch (err) { res.status(500).send({ok: false, errores: [err.message]}); }
+});
+
 // Valida sin guardar.
 router.post("/validar", async (req, res) => {
     try {
