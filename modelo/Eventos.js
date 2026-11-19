@@ -545,6 +545,16 @@ const EventosSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.Mixed,
         default: {},
     },
+    // Organizacion del proyecto (frontend documento/planeacion_organizacion.md):
+    //   tipo: "escena" | "asset" elegido a mano (null / ausente = automatico, ver controller/Organizacion.js)
+    //   principal: la escena principal del proyecto (una sola)
+    //   capitulo: id de un capitulo del proyecto (proyecto.capitulos) y orden dentro de el (fase 2)
+    organizacion: {
+        tipo: {type: String, enum: ["escena", "asset", null], default: undefined},
+        principal: {type: Boolean, default: undefined},
+        capitulo: {type: String, default: undefined},
+        orden: {type: Number, default: undefined},
+    },
     // Fase A6: llave de autoria que creo el documento (solo esa llave puede borrarlo)
     creado_por_llave: {
         type: String,

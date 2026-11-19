@@ -12,6 +12,9 @@ const ProyectoSchema = new mongoose.Schema({
     descripcion: {type: String, required: false},
     nombre_verificador :{type: String, unique: true},
     usuario_id: {type: String,required: true, immutable: true},
+    // Capitulos de la historia, en orden (frontend documento/planeacion_organizacion.md, fase 2).
+    // Solo organizan escenas (Eventos.organizacion.capitulo); los assets no van en capitulos.
+    capitulos: {type: [{nombre: {type: String, required: true}}], default: undefined},
 })
 
 ProyectoSchema.pre('save', async function (next){

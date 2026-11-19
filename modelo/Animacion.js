@@ -253,6 +253,21 @@ const grupoFigurasSchema = new mongoose.Schema({
     efecto: {type: mongoose.Schema.Types.Mixed},
     fisica: {type: mongoose.Schema.Types.Mixed},
     opacidad: {type: Number},
+    // Calidad de dibujo (frontend ImprimirAnimacion.js): desenfoque en px y modo de
+    // mezcla (suma, pantalla, multiplicar...); los hereda todo el sub-arbol
+    desenfoque: {type: Number},
+    mezcla: {type: String},
+    // morphing de color: las claves "forma" interpolan tambien pintado, borde y degradado
+    forma_color: {type: Boolean},
+    // cinematica inversa de 2 huesos (frontend Clases/EditorEvento/Ik.js):
+    // {hasta, punta: [x, y], objetivo, doblez, orientar}
+    ik: {type: mongoose.Schema.Types.Mixed},
+    // movimiento secundario (frontend Clases/EditorEvento/Inercia.js):
+    // {rigidez, amortiguacion, fuerza, limite, punta}
+    inercia: {type: mongoose.Schema.Types.Mixed},
+    // sombras proyectadas de un objeto (frontend ImprimirAnimacion.dibujarSombras):
+    // [{luz, angulo, piso, largo, aplastar, opacidad, desenfoque, color}]
+    sombra: {type: mongoose.Schema.Types.Mixed},
     // Sonido (planeacion_sonido.md del frontend): {clips: [...], reacciones: {al_impactar,
     // al_soltarse, ...}} del objeto o efecto, y su marca "lleva" | "no_lleva"
     sonidos: {type: mongoose.Schema.Types.Mixed},
@@ -292,7 +307,9 @@ const grupoFigurasSchema = new mongoose.Schema({
                 type: Boolean,
                 required: true
             },
-            elementos: []
+            elementos: [],
+            // relleno degradado opcional {tipo: lineal|radial, de, a | centro, radio, colores}
+            degradado: {type: mongoose.Schema.Types.Mixed}
         }
     ]
 });

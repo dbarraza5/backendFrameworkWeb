@@ -14,8 +14,11 @@ app.use(express.static(path.join(__dirname, 'public')))
 //app.use(express.urlencoded({ extended: true }));
 
 const bodyParser = require("body-parser");
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// Limite del cuerpo: por defecto body-parser acepta 100 kB y un asset de ~500 figuras ya
+// no entraba. 15 MB queda por debajo del maximo de un documento de MongoDB (16 MB).
+const LIMITE_CUERPO = "15mb";
+app.use(bodyParser.json({limit: LIMITE_CUERPO}));
+app.use(bodyParser.urlencoded({ extended: true, limit: LIMITE_CUERPO }));
 
 
 const cookieParser = require("cookie-parser");
@@ -78,6 +81,8 @@ app.use("/api", isAuthenticated,verifyToken, router_api)
 app.use("/api", isAuthenticated, verifyToken, require("./routes/Sonidos"))
 // Respaldo de proyectos: exportar / importar .zip
 app.use("/api", isAuthenticated, verifyToken, require("./routes/Respaldo"))
+// Organizacion del proyecto: escenas / assets, escena principal (frontend planeacion_organizacion.md)
+app.use("/api", isAuthenticated, verifyToken, require("./routes/Organizacion"))
 
 // Autoria asistida (Fase A2): acceso con llave de proyecto, sin sesion de navegador
 const router_autoria = require("./routes/Autoria")
