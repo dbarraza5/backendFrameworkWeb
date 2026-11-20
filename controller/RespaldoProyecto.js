@@ -177,6 +177,8 @@ async function importarProyecto(entradas, usuario_id) {
     mapa.set(pidViejo, nuevo());
     if (uidViejo !== String(usuario_id)) mapa.set(uidViejo, String(usuario_id));
     for (const k of Object.keys(datos)) for (const d of datos[k]) mapa.set(String(d._id), nuevo());
+    // capitulos (planeacion_organizacion.md): ids nuevos; las escenas los nombran en organizacion.capitulo
+    for (const c of proyecto.capitulos || []) if (c && c._id) mapa.set(String(c._id), nuevo());
     const pid = mapa.get(pidViejo);
 
     // referencias a documentos que no vienen en el respaldo (instancias de otro proyecto)

@@ -13,6 +13,7 @@ const Proyecto = require("../modelo/Proyecto");
 const {Eventos} = require("../modelo/Eventos");
 const {filaDocumento, validarCambio, CAMPOS_LISTA, capitulosDe, validarNombre, moverEn, validarOrden, escenaVacia} = require("../controller/Organizacion");
 const {metaFiguras} = require("../controller/AutoriaComun");
+const {ordenAlFinal} = require("../controller/OrganizacionDatos");
 
 const router = express.Router();
 const fallo = (res, err) => res.status(err.status || 500).send({error: err.message});
@@ -131,10 +132,7 @@ router.post("/proyecto/:id_proyecto/escenas", async (req, res) => {
         if (capitulo && !capitulosDe(p).some((c) => c._id === capitulo)) throw error(400, "el capitulo no existe en el proyecto");
         const pid = String(p._id);
         if (await Eventos.findOne({id_proyecto: pid, nombre}).select("_id")) throw error(409, `ya existe "${nombre}" en el proyecto`);
-        // al final del capitulo
-        const ultima = await Eventos.findOne({id_proyecto: pid, "organizacion.capitulo": capitulo || {$exists: false},
-            "organizacion.orden": {$type: "number"}}).sort({"organizacion.orden": -1}).select("organizacion").lean();
-        const orden = ultima ? ultima.organizacion.orden + 1 : 0;
+        const orden = await ordenAlFinal(pid, capitulo);   // al final del capitulo
         const doc = await Eventos.create({id_proyecto: pid, nombre, ...escenaVacia(), meta_figuras: await metaFiguras(pid),
             organizacion: {...(capitulo ? {capitulo} : {}), orden}});
         const fila = await Eventos.findById(doc._id).select(CAMPOS_LISTA).lean();

@@ -13,21 +13,30 @@ const {Animacion} = require("../modelo/Animacion");
 const {VersionEventos} = require("../modelo/VersionEventos");
 
 const router = express.Router();
-const {esId, validar, metaFiguras, eventoGeneral, esEscena, crearAsset} = require("../controller/AutoriaComun");
+const {esId, validar, metaFiguras, eventoGeneral, crearAsset} = require("../controller/AutoriaComun");
+const Proyecto = require("../modelo/Proyecto");
+const {filaDocumento, capitulosDe, CAMPOS_LISTA} = require("../controller/Organizacion");
+const {capituloPorNombre, ubicarEnCapitulo} = require("../controller/OrganizacionDatos");
 
 
 // ---------------- rutas ----------------
 
-// Assets y escenas del proyecto (liviano).
+// Assets y escenas del proyecto (liviano). El tipo es el de la pagina del proyecto (automatico
+// o elegido a mano) y las escenas traen su capitulo (planeacion_organizacion.md).
 router.get("/catalogo", async (req, res) => {
     try {
+        const p = await Proyecto.findById(req.id_proyecto).select("capitulos").lean();
+        const capitulos = capitulosDe(p);
+        const nombreCap = new Map(capitulos.map((c) => [c._id, c.nombre]));
         const docs = await Eventos.find({id_proyecto: req.id_proyecto})
-            .select(["_id", "nombre", "eventos.nombre", "eventos.tiempo_final", "grupos_figuras.instancia", "fecha_actualizacion"]);
-        res.json({id_proyecto: req.id_proyecto, documentos: docs.map((d) => ({
-            id: d._id, nombre: d.nombre, tipo: esEscena(d) ? "escena" : "asset",
-            eventos: (d.eventos || []).map((e) => ({nombre: e.nombre, tiempo_final: e.tiempo_final})),
-            fecha_actualizacion: d.fecha_actualizacion,
-        }))});
+            .select(CAMPOS_LISTA.concat(["eventos.nombre", "eventos.tiempo_final"])).lean();
+        res.json({id_proyecto: req.id_proyecto, capitulos: capitulos.map((c) => c.nombre), documentos: docs.map((d) => {
+            const fila = filaDocumento(d);
+            return {id: d._id, nombre: d.nombre, tipo: fila.tipo, principal: fila.principal,
+                capitulo: (fila.capitulo && nombreCap.get(fila.capitulo)) || null, orden: fila.orden,
+                eventos: (d.eventos || []).map((e) => ({nombre: e.nombre, tiempo_final: e.tiempo_final})),
+                fecha_actualizacion: d.fecha_actualizacion};
+        })});
     } catch (err) { res.status(500).send({error: err.message}); }
 });
 
@@ -104,14 +113,32 @@ router.post("/escenas", async (req, res) => {
         if (await Eventos.findOne({id_proyecto: req.id_proyecto, nombre})) {
             return res.status(409).json({ok: false, errores: [`ya existe "${nombre}" en el proyecto`]});
         }
+        // capitulo (por nombre; se crea si no existe): la escena queda al final de el
+        const capitulo = req.body.capitulo == null ? null : await capituloPorNombre(req.id_proyecto, req.body.capitulo, {crear: true});
         const doc = await Eventos.create({
             id_proyecto: req.id_proyecto, nombre, eventos: req.body.eventos || eventoGeneral(),
             grupos_figuras: req.body.grupos_figuras, meta_figuras: await metaFiguras(req.id_proyecto),
             escena: req.body.escena || {},
             creado_por_llave: String(req.llave._id),
         });
-        res.status(201).json({ok: true, id_eventos: doc._id, nombre});
-    } catch (err) { res.status(500).send({ok: false, errores: [err.message]}); }
+        if (capitulo) await ubicarEnCapitulo(doc._id, req.id_proyecto, capitulo);
+        res.status(201).json({ok: true, id_eventos: doc._id, nombre, ...(capitulo ? {capitulo: String(req.body.capitulo).trim()} : {})});
+    } catch (err) { res.status(err.status || 500).send({ok: false, errores: [err.message]}); }
+});
+
+// Mover una escena a un capitulo (por nombre; se crea si no existe) o, con null, a "Sin capitulo".
+// Queda al final. Solo organiza: no cambia el contenido ni hace respaldo.
+router.put("/eventos/:id/capitulo", async (req, res) => {
+    try {
+        if (!esId(req.params.id)) return res.status(400).send({error: "id invalido"});
+        const doc = await Eventos.findOne({_id: req.params.id, id_proyecto: req.id_proyecto}).select(CAMPOS_LISTA).lean();
+        if (!doc) return res.status(404).json({ok: false, errores: ["no existe en este proyecto"]});
+        if (filaDocumento(doc).tipo !== "escena") return res.status(400).json({ok: false, errores: ["solo las escenas van en capitulos (los assets son de todo el proyecto)"]});
+        const nombre = (req.body || {}).capitulo;
+        const capitulo = nombre == null ? null : await capituloPorNombre(req.id_proyecto, nombre, {crear: true});
+        await ubicarEnCapitulo(doc._id, req.id_proyecto, capitulo);
+        res.json({ok: true, id_eventos: doc._id, capitulo: capitulo ? String(nombre).trim() : null});
+    } catch (err) { res.status(err.status || 500).send({ok: false, errores: [err.message]}); }
 });
 
 // Actualizar un documento existente. Antes se guarda un RESPALDO automatico como
