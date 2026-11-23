@@ -119,7 +119,10 @@ router_api.get("/proyecto-animacion/:id_usuario", async (req, res) => {
         // 2) Para cada proyecto, traer sus animaciones
         const lista_animaciones_proyectos = await Promise.all(
             proyectos.map(async (proyecto) => {
-                const animaciones_raw = await Animacion.find({ id_proyecto: proyecto._id }).exec();
+                // solo los campos que se devuelven: traer grupos_figuras de todos los dibujos tardaba ~12 s
+                // y bloqueaba el servidor (todas las demas peticiones esperaban detras)
+                const animaciones_raw = await Animacion.find({ id_proyecto: proyecto._id })
+                    .select("nombre_proyecto nombre_animacion fecha_actualizacion fecha_creacion").lean();
 
                 const animaciones = animaciones_raw.map((animacion)=>{
                     return {
@@ -420,20 +423,24 @@ router_api.get("/eventos/proyecto-slim/:id_proyecto", (req, res)=>{
     }).select(["_id", "nombre", "fecha_actualizacion", "fecha_creacion"]);
 });
 
-router_api.get("/evento/id/:id_evento", (req, res)=>{
-
-    const id_evento = req.params.id_evento;
-
-    Eventos.findOne({ '_id': id_evento},function (err, pro) {
-        if (err ){
-            return res.status(500).send({"error": err.message})
-        }
-        if(pro==null){
-            return res.status(404).send({"error": "evento no encontrada"})
-        }
-        res.json(pro)
-    });
-
+// Documento plano (lean): armar un documento Mongoose de un asset grande (~2 MB) costaba ~0.9 s de CPU
+// y frenaba al resto de las peticiones. normalizarEvento deja la respuesta igual a la de antes
+// (Mongoose omite los objetos vacios y rellena creado_por_llave con null).
+function normalizarEvento(doc) {
+    for (const k of ["escena", "organizacion"]) {
+        if (doc[k] && typeof doc[k] === "object" && !Array.isArray(doc[k]) && Object.keys(doc[k]).length === 0) delete doc[k];
+    }
+    if (doc.creado_por_llave === undefined) doc.creado_por_llave = null;
+    return doc;
+}
+router_api.get("/evento/id/:id_evento", async (req, res)=>{
+    try {
+        const pro = await Eventos.findOne({ '_id': req.params.id_evento }).lean();
+        if (pro == null) return res.status(404).send({"error": "evento no encontrada"});
+        res.json(normalizarEvento(pro));
+    } catch (err) {
+        return res.status(500).send({"error": err.message});
+    }
 });
 
 router_api.put("/evento/id/:id_evento", ((req, res)=>{

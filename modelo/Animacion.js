@@ -280,6 +280,13 @@ const grupoFigurasSchema = new mongoose.Schema({
         bucle: {type: Boolean},
         desfase: {type: Number},
         audio: {volumen: {type: Number}, silencio: {type: Boolean}},   // ajuste del sonido heredado
+        // acciones en el tiempo (planeacion_zorro_cuervo.md, fase 3): desde t (ms de la escena) reproduce
+        // ese evento del asset desde su comienzo, en bucle salvo bucle: false
+        acciones: {type: [{t: Number, evento: String, bucle: Boolean, _id: false}], default: undefined},
+        // claves propias de partes del asset en esta instancia (planeacion_voces.md, fase 3):
+        // {"<parte>": {prop: [{t, v, interp}], peso?: [...]}}; t en ms de la escena. `peso` (0..1)
+        // mezcla el valor de la clave con la animacion del asset (sin peso: reemplaza siempre)
+        claves_partes: {type: mongoose.Schema.Types.Mixed},
     },
     //grupo_movimientos: [{
     //    type: mongoose.Schema.Types.ObjectId,

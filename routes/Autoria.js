@@ -75,6 +75,41 @@ router.get("/sonidos", async (req, res) => {
     } catch (err) { res.status(500).send({error: err.message}); }
 });
 
+// Voces generadas en la computadora del usuario con Kokoro (frontend documento/planeacion_voces.md):
+// la herramienta herramientas/voces.mjs sube el WAV ya listo. Solo WAV (base64), hasta 5 MB.
+// Si ya hay un sonido con ese nombre: lo reemplaza solo si lo creo esta misma llave.
+//   POST /autoria/sonidos/voz {nombre, nota?, wav: "<base64>", duracion_ms, picos?: [0..1]}
+router.post("/sonidos/voz", async (req, res) => {
+    try {
+        const b = req.body || {};
+        const nombre = String(b.nombre || "").trim();
+        if (!nombre) return res.status(400).json({ok: false, errores: ["falta el nombre"]});
+        const datos = Buffer.from(String(b.wav || ""), "base64");
+        if (datos.length < 44 || datos.toString("ascii", 0, 4) !== "RIFF" || datos.toString("ascii", 8, 12) !== "WAVE") {
+            return res.status(400).json({ok: false, errores: ["wav debe ser un archivo WAV en base64"]});
+        }
+        if (datos.length > 5 * 1024 * 1024) return res.status(400).json({ok: false, errores: ["la voz supera 5 MB"]});
+        const llave = String(req.llave._id);
+        let s = await Sonido.findOne({id_proyecto: req.id_proyecto, nombre});
+        if (s && s.creado_por_llave !== llave) return res.status(409).json({ok: false, errores: [`ya existe "${nombre}" y no lo creo esta llave`]});
+        if (!s) s = new Sonido({id_proyecto: req.id_proyecto, nombre, creado_por_llave: llave});
+        const p = await Proyecto.findById(req.id_proyecto).select(["usuario_id"]);
+        const carpeta = `/home/app/storage/usuarios/${p.usuario_id}/proyectos/${p._id}/sonidos`;
+        require("node:fs").mkdirSync(carpeta, {recursive: true});
+        const ruta = `${carpeta}/${s._id}.wav`;
+        require("node:fs").writeFileSync(ruta, datos);
+        s.archivo = {ruta, tipo: "audio/wav", tamano: datos.length, original: nombre + ".wav"};
+        s.estado = "listo";
+        s.revision = (s.revision || 0) + 1;
+        s.nota = String(b.nota || "voz generada con Kokoro").slice(0, 300);
+        const d = Number(b.duracion_ms);
+        if (Number.isFinite(d) && d >= 0) s.duracion_ms = Math.round(d);
+        if (Array.isArray(b.picos)) s.picos = b.picos.slice(0, 400).map((v) => Math.max(0, Math.min(1, Number(v) || 0)));
+        await s.save();
+        res.status(201).json({ok: true, _id: s._id, nombre, revision: s.revision});
+    } catch (err) { res.status(500).send({ok: false, errores: [err.message]}); }
+});
+
 router.post("/sonidos", async (req, res) => {
     try {
         const nombre = String((req.body && req.body.nombre) || "").trim();
@@ -150,6 +185,14 @@ router.put("/eventos/:id", async (req, res) => {
         if (!actual) return res.status(404).json({ok: false, errores: ["no existe en este proyecto"]});
         const errores = await validar(req.body, req.id_proyecto, {parcial: true});
         if (errores.length) return res.status(400).json({ok: false, errores});
+        // renombrar: el nombre nuevo no puede ser de otro documento del proyecto
+        if (req.body.nombre !== undefined) {
+            req.body.nombre = String(req.body.nombre).trim();
+            if (!req.body.nombre) return res.status(400).json({ok: false, errores: ["el nombre no puede quedar vacio"]});
+            if (req.body.nombre !== actual.nombre && await Eventos.findOne({id_proyecto: req.id_proyecto, nombre: req.body.nombre, _id: {$ne: actual._id}})) {
+                return res.status(409).json({ok: false, errores: [`ya existe "${req.body.nombre}" en el proyecto`]});
+            }
+        }
         const ultima = await VersionEventos.findOne({id_eventos: String(actual._id)}).sort({numero: -1}).select("numero");
         const respaldo = await VersionEventos.create({
             id_eventos: String(actual._id), numero: (ultima ? ultima.numero : 0) + 1,
@@ -158,6 +201,10 @@ router.put("/eventos/:id", async (req, res) => {
         const cambios = {};
         for (const k of ["nombre", "grupos_figuras", "eventos", "escena"]) if (req.body[k] !== undefined) cambios[k] = req.body[k];
         const doc = await Eventos.findOneAndUpdate({_id: actual._id}, cambios, {new: true, runValidators: true});
+        // el dibujo de un asset creado por esta llave lleva el nombre en `descripcion` (asi lo encuentra "borrar")
+        if (cambios.nombre && cambios.nombre !== actual.nombre) {
+            await Animacion.updateMany({id_proyecto: req.id_proyecto, creado_por_llave: String(req.llave._id), descripcion: actual.nombre}, {descripcion: cambios.nombre});
+        }
         res.json({ok: true, id_eventos: doc._id, respaldo: {id_version: respaldo._id, numero: respaldo.numero}});
     } catch (err) { res.status(500).send({ok: false, errores: [err.message]}); }
 });
