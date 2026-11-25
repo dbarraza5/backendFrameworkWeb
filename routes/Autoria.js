@@ -7,6 +7,7 @@
 // src/Clases/Autoria/Compilador.js); esta API recibe el resultado compilado
 // ({nombre, grupos_figuras, eventos, escena}), lo valida y lo guarda.
 const express = require("express");
+const {normalizarNotas, conservarNotas} = require("../controller/Notas");
 const mongoose = require("mongoose");
 const {Eventos} = require("../modelo/Eventos");
 const {Animacion} = require("../modelo/Animacion");
@@ -29,12 +30,16 @@ router.get("/catalogo", async (req, res) => {
         const capitulos = capitulosDe(p);
         const nombreCap = new Map(capitulos.map((c) => [c._id, c.nombre]));
         const docs = await Eventos.find({id_proyecto: req.id_proyecto})
-            .select(CAMPOS_LISTA.concat(["eventos.nombre", "eventos.tiempo_final"])).lean();
+            .select(CAMPOS_LISTA.concat(["eventos.nombre", "eventos.tiempo_final", "grupos_figuras.nombre"])).lean();
         res.json({id_proyecto: req.id_proyecto, capitulos: capitulos.map((c) => c.nombre), documentos: docs.map((d) => {
             const fila = filaDocumento(d);
             return {id: d._id, nombre: d.nombre, tipo: fila.tipo, principal: fila.principal,
                 capitulo: (fila.capitulo && nombreCap.get(fila.capitulo)) || null, orden: fila.orden,
                 eventos: (d.eventos || []).map((e) => ({nombre: e.nombre, tiempo_final: e.tiempo_final})),
+                // enganches y nombres de las partes (IA-4: para colgar objetos de una parte de la instancia)
+                enganches: (d.escena && d.escena.enganches) || null,
+                caja: (d.escena && d.escena.caja) || null,
+                partes: (d.grupos_figuras || []).map((g) => g.nombre).filter((n) => n && n !== "default"),
                 fecha_actualizacion: d.fecha_actualizacion};
         })});
     } catch (err) { res.status(500).send({error: err.message}); }
@@ -200,12 +205,34 @@ router.put("/eventos/:id", async (req, res) => {
         });
         const cambios = {};
         for (const k of ["nombre", "grupos_figuras", "eventos", "escena"]) if (req.body[k] !== undefined) cambios[k] = req.body[k];
+        // las notas del usuario (IA-6) no vienen en el formato simple: se conservan
+        if (cambios.escena !== undefined) cambios.escena = conservarNotas(cambios.escena, actual.escena);
         const doc = await Eventos.findOneAndUpdate({_id: actual._id}, cambios, {new: true, runValidators: true});
         // el dibujo de un asset creado por esta llave lleva el nombre en `descripcion` (asi lo encuentra "borrar")
         if (cambios.nombre && cambios.nombre !== actual.nombre) {
             await Animacion.updateMany({id_proyecto: req.id_proyecto, creado_por_llave: String(req.llave._id), descripcion: actual.nombre}, {descripcion: cambios.nombre});
         }
         res.json({ok: true, id_eventos: doc._id, respaldo: {id_version: respaldo._id, numero: respaldo.numero}});
+    } catch (err) { res.status(500).send({ok: false, errores: [err.message]}); }
+});
+
+// IA-6: la autoria responde una nota de correccion del usuario: {resuelta?: bool, respuesta?: "que se hizo"}
+router.put("/eventos/:id/notas/:id_nota", async (req, res) => {
+    try {
+        if (!esId(req.params.id)) return res.status(400).send({error: "id invalido"});
+        const actual = await Eventos.findOne({_id: req.params.id, id_proyecto: req.id_proyecto}).select("escena.notas").lean();
+        if (!actual) return res.status(404).json({ok: false, errores: ["no existe en este proyecto"]});
+        const notas = (actual.escena && actual.escena.notas) || [];
+        const k = notas.findIndex((n) => n.id === req.params.id_nota);
+        if (k < 0) return res.status(404).json({ok: false, errores: [`no existe la nota ${req.params.id_nota}`]});
+        const nueva = {...notas[k]};
+        if (req.body.resuelta !== undefined) nueva.resuelta = req.body.resuelta === true;
+        if (req.body.respuesta !== undefined) nueva.respuesta = req.body.respuesta;
+        const lista = notas.map((n, i) => (i === k ? nueva : n));
+        const {notas: limpias, errores} = normalizarNotas(lista);
+        if (errores.length) return res.status(400).json({ok: false, errores});
+        await Eventos.updateOne({_id: actual._id}, {$set: {"escena.notas": limpias}});
+        res.json({ok: true, nota: limpias[k]});
     } catch (err) { res.status(500).send({ok: false, errores: [err.message]}); }
 });
 

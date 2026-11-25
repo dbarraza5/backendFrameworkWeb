@@ -2,13 +2,16 @@
 // Funciones puras: se prueban sin base de datos (pruebas/organizacion.test.js).
 
 // Tipo automatico de un documento de eventos: "escena" si tiene instancias, efectos o camara,
-// o configuracion de escena aparte de las reacciones de sonido; si no, "asset".
+// o configuracion de escena aparte de las reacciones de sonido y los enganches; si no, "asset".
 // (La misma regla que Descompilador.esEscena del frontend.)
+// campos de escena que tambien tiene un asset: reacciones (sonidos que heredan sus instancias) y
+// enganches (puntos donde se cuelgan objetos de la escena), caja (del dibujo, para encuadrar) y notas (de correccion)
+const SOLO_ASSET = ["reacciones", "enganches", "caja", "notas"];
 function tipoAutomatico(doc) {
     const gs = (doc && doc.grupos_figuras) || [];
     const conEscena = gs.some((g) => (g.instancia && g.instancia.id_eventos) || (g.efecto && g.efecto.tipo) || (g.clases || []).includes("camara"));
     const esc = (doc && doc.escena) || {};
-    const config = Object.keys(esc).filter((k) => k !== "reacciones" && esc[k] !== undefined && esc[k] !== null);
+    const config = Object.keys(esc).filter((k) => !SOLO_ASSET.includes(k) && esc[k] !== undefined && esc[k] !== null);
     return conEscena || config.length ? "escena" : "asset";
 }
 

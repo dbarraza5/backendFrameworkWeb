@@ -22,10 +22,14 @@ async function validar(body, id_proyecto, {parcial = false} = {}) {
                 nombres.add(g.nombre);
                 if (g._virtual) errores.push(`grupo "${g.nombre}": las partes virtuales de instancias no se guardan`);
             }
+            // (un objeto enganchado a una parte de una instancia tiene de padre "<instancia>::<parte>": la parte
+            //  existe solo en el motor, al cargar el asset; basta con que exista la instancia)
+            const instancias = new Set(b.grupos_figuras.filter((g) => g && g.instancia).map((g) => g.nombre));
             for (const g of b.grupos_figuras) {
-                if (g && g.nodo_padre && g.nodo_padre !== "root" && !nombres.has(g.nodo_padre)) {
-                    errores.push(`grupo "${g.nombre}": su padre "${g.nodo_padre}" no existe`);
-                }
+                if (!g || !g.nodo_padre || g.nodo_padre === "root" || nombres.has(g.nodo_padre)) continue;
+                const k = g.nodo_padre.indexOf("::");
+                if (k > 0 && instancias.has(g.nodo_padre.slice(0, k))) continue;
+                errores.push(`grupo "${g.nombre}": su padre "${g.nodo_padre}" no existe`);
             }
             // las instancias solo pueden apuntar a documentos del mismo proyecto
             const ids = [...new Set(b.grupos_figuras.filter((g) => g && g.instancia && g.instancia.id_eventos).map((g) => String(g.instancia.id_eventos)))];

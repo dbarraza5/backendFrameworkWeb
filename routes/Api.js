@@ -7,6 +7,7 @@ const Proyecto = require("../modelo/Proyecto")
 const multer = require("multer");
 const {Animacion} = require("../modelo/Animacion");
 const {Eventos} = require("../modelo/Eventos");
+const {normalizarNotas, conservarNotas} = require("../controller/Notas");
 const {VersionEventos} = require("../modelo/VersionEventos");
 const {subirImagen} = require("../controller/ImagenAnimacion");
 const router_api = express.Router();
@@ -443,10 +444,17 @@ router_api.get("/evento/id/:id_evento", async (req, res)=>{
     }
 });
 
-router_api.put("/evento/id/:id_evento", ((req, res)=>{
+router_api.put("/evento/id/:id_evento", (async (req, res)=>{
     const id_evento = req.params.id_evento;
     const filter = { '_id': id_evento };
     const update = {...req.body}
+    // IA-6: el editor sube la escena sin las notas (van por su propia ruta): se conservan las guardadas
+    if (update.escena && update.escena.notas === undefined && mongoose.Types.ObjectId.isValid(id_evento)) {
+        try {
+            const actual = await Eventos.findById(id_evento).select("escena.notas").lean();
+            update.escena = conservarNotas(update.escena, actual && actual.escena);
+        } catch (e) { /* sin notas que conservar */ }
+    }
     const opciones = {
         new: true, // Devuelve el documento actualizado
         runValidators: true // Habilita la validación
@@ -467,6 +475,23 @@ router_api.put("/evento/id/:id_evento", ((req, res)=>{
     })
 }));
 
+
+// ---- Notas de correccion de una escena (frontend planeacion_autoria_ia.md, IA-6) ----
+// Se guardan aparte (sin "Subir"): asi no se mezclan con el historial ni se pierden si la escena tiene cambios sin subir.
+router_api.put("/evento/id/:id_evento/notas", async (req, res) => {
+    try {
+        const id = req.params.id_evento;
+        if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).send({"error": "id invalido"});
+        const ev = await Eventos.findById(id).select("id_proyecto").lean();
+        if (!ev) return res.status(404).send({"error": "no existe la escena"});
+        const p = await Proyecto.findById(ev.id_proyecto).select("usuario_id").lean();
+        if (!p || String(p.usuario_id) !== String(req.session.user.id)) return res.status(403).send({"error": "la escena no es tuya"});
+        const {notas, errores} = normalizarNotas(req.body && req.body.notas);
+        if (errores.length) return res.status(400).send({"error": errores.join("; ")});
+        await Eventos.updateOne({_id: id}, {$set: {"escena.notas": notas}});
+        res.json({ok: true, notas});
+    } catch (err) { res.status(500).send({"error": err.message}); }
+});
 
 // ---- Llaves de autoria asistida (Fase A2): las administra el dueno del proyecto ----
 const {LlaveAutoria, hashLlave, generarLlave} = require("../modelo/LlaveAutoria");

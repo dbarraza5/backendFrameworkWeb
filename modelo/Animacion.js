@@ -265,6 +265,8 @@ const grupoFigurasSchema = new mongoose.Schema({
     // movimiento secundario (frontend Clases/EditorEvento/Inercia.js):
     // {rigidez, amortiguacion, fuerza, limite, punta}
     inercia: {type: mongoose.Schema.Types.Mixed},
+    // objeto colgado que sigue la posicion de su padre pero no su giro (frontend: escena girar: false)
+    sin_giro: {type: Boolean},
     // sombras proyectadas de un objeto (frontend ImprimirAnimacion.dibujarSombras):
     // [{luz, angulo, piso, largo, aplastar, opacidad, desenfoque, color}]
     sombra: {type: mongoose.Schema.Types.Mixed},
